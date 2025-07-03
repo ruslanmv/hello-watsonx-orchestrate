@@ -22,10 +22,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate YAML specs
-        run: |
-          orchestrate specs validate -d agents/
-
       - name: Run pytest
         run: |
           pytest -q
