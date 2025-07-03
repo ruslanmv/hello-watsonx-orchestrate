@@ -24,7 +24,7 @@ jobs:
 
       - name: Validate YAML specs
         run: |
-          orchestrate validate -d agents/
+          orchestrate specs validate -d agents/
 
       - name: Run pytest
         run: |
