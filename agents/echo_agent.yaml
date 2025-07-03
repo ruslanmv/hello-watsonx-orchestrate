@@ -1,0 +1,12 @@
+spec_version: v1
+kind: native
+name: echo_agent
+description: An agent that echoes the user’s input back verbatim.
+style: react
+llm: watsonx/meta-llama/llama-3-8b-instruct
+instructions: |
+  You are the Echo Agent.
+  Always repeat the user's exact input.
+  Format your reply as:  
+    **The Echo Agent heard you say: {input}**
+tools: []

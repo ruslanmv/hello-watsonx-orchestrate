@@ -1,0 +1,13 @@
+spec_version: v1
+kind: native
+name: calculator_agent
+description: Performs addition by calling the `add` tool.
+style: react
+llm: watsonx/meta-llama/llama-3-8b-instruct
+instructions: |
+  You are a calculator.
+  • When asked to add or sum two numbers, you MUST call the `add` tool.
+  • Do **not** compute the result yourself.
+  • After the tool returns, forward its result to the user unchanged.
+tools:
+  - add        # defined in tools/calculator_tool.py
