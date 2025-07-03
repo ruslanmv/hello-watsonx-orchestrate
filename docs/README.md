@@ -1,4 +1,4 @@
-## 🚀 **From Zero to Hero: Building a Multi-Agent System with Watsonx Orchestrat**
+## 🚀 **From Zero to Hero: Building a Multi-Agent System with Watsonx Orchestrate**
 
 ### **Introduction**
 

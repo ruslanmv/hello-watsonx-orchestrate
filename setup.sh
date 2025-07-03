@@ -7,7 +7,7 @@
 set -e
 
 echo "📦  Creating Python virtual-environment…"
-python3 -m venv venv
+python3.11 -m venv venv
 # shellcheck disable=SC1091
 source venv/bin/activate
 
