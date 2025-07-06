@@ -84,3 +84,16 @@ Pull requests and issues welcome! Please run `pytest` and ensure CI passes befor
 ## 📝 License
 
 This repository is released under the MIT License (see `LICENSE`).
+
+
+
+How to Use:
+Run the script as usual
+When prompted, choose "Y" to install the demo agent
+The script will create and import the demo agent automatically
+Start the chat interface and test with phrases like:
+"Hello" or "Give me a greeting"
+"What time is it?" or "Show me the current time"
+This demo agent provides a simple way to test that watsonx Orchestrate is working correctly without requiring complex external integrations or APIs.
+
+start-watsonx-orchestrate-demo.sh

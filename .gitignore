@@ -26,3 +26,4 @@ Thumbs.db
 # Docker artifacts
 *.log
 orchestrate-dev-*.tar
+/backup

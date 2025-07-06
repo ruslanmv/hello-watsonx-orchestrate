@@ -40,7 +40,7 @@ To make things easier, all the code for this tutorial is ready for you. Let's cl
     *On macOS / Linux:*
 
     ```bash
-    python3 -m venv venv
+    python3.11 -m venv venv
     source venv/bin/activate
     ```
 
@@ -59,11 +59,92 @@ Now, we'll install the IBM watsonx Orchestrate Agent Developer Kit (ADK) and sta
     Use `pip` to install the core `orchestrate` library.
 
     ```bash
-    pip install --upgrade ibm-watsonx-orchestrate
+    pip install --upgrade ibm-watsonx-orchestrate==1.6.1
     ```
 
 2.  **Activate and Start the Local Server**
     The ADK's local server runs in Docker and provides an offline environment for development.
+
+   Let's test the installation
+
+    ```bash
+   orchestrate --version
+    ```
+    ![](assets/2025-07-04-15-05-47.png)
+
+
+    In this demo we are going to use the the watsonx Orchestrate Developer Edition runs under a Docker container, and can’t be used to host a full working version of watsonx Orchestrate. 
+    The server runs under the host machine’s localhost, and can’t be used to provide remote access. 
+
+    Deploying the watsonx Orchestrate Developer Edition in a virtual machine is also not supported.
+
+
+
+Install Docker and Docker Compose engine. It is containerization engine used to install the watsonx Orchestrate Developer Edition. For more information, see Docker and Docker compose.
+
+
+For macOS users, use a container management software such as Rancher Desktop or Colima to use the Docker engine.
+
+
+You must have access to at least one of these services:
+
+watsonx Orchestrate
+watsonx.ai
+You can use at least one of these services to get access to the watsonx Orchestrate Developer Edition images.
+
+
+
+
+Setup the environment
+The watsonx Orchestrate Developer Edition is distributed as a Docker image. In order to pull the images from Docker, you must configure an environment file with the appropriate data.
+
+
+
+Getting an entitlement key for watsonx Orchestrate Developer Edition
+You can download the images if you have a valid instance of watsonx.ai. In order to do that, you must obtain an entitlement key to proceed. To get the entitlement key, follow these steps:
+
+Access My IBM.
+
+Click View Library.
+
+![](assets/2025-07-04-22-20-41.png)
+
+
+Click Add a new key +.
+
+![](assets/2025-07-04-22-21-51.png)
+Copy the entitlement key.
+![](assets/2025-07-04-22-22-26.png)
+
+
+
+Using your watsonx.ai account
+Create a watsonx.ai instance on IBM Cloud, if you do not have one already, and locate your space ID. You can create a new instance and get the space ID in the Developer access page on IBM Cloud.
+Go to this page
+[Developer access ](https://dataplatform.cloud.ibm.com/developer-access?context=wx)
+
+
+![](assets/2025-07-05-23-41-03.png)
+
+
+
+To get your API Key, see[Managing API Keys](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui).
+
+Create you personal API KEY
+[https://cloud.ibm.com/iam/apikeys](https://cloud.ibm.com/iam/apikeys)
+![](assets/2025-07-05-23-43-49.png)
+and copy it
+
+![](assets/2025-07-05-23-44-49.png)
+
+    Create a .env file with the following contents:
+    ```bash
+  WO_DEVELOPER_EDITION_SOURCE=myibm
+  WO_ENTITLEMENT_KEY=<my_entitlement_key>
+  WATSONX_APIKEY=<my_watsonx_api_key>
+  WATSONX_SPACE_ID=<my_space_id>
+  WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+    ```
 
     ```bash
     # Point the CLI to your local environment
@@ -75,6 +156,62 @@ Now, we'll install the IBM watsonx Orchestrate Agent Developer Kit (ADK) and sta
 
     **Important**: Keep this terminal window open\! The server must be running for your agents to work. If you accidentally close it, simply run the `orchestrate server start --accept-license` command again in a new terminal.
 
+
+If you want get an online watsonx orchestrate you can try the trial
+Trial access on IBM Cloud.
+IBM Cloud
+
+To initiate the trial access on IBM Cloud:
+
+[Log in](https://cloud.ibm.com/login) to your IBM Cloud account.
+If you don't have an account, create an [IBM Cloud account](https://cloud.ibm.com/registration). Complete the registration form, and click Create account.
+Navigate to the [watsonx Orchestrate catalog](https://cloud.ibm.com/catalog/services/watsonx-orchestrate?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2cjYWxsX3Byb2R1Y3Rz) page on IBM Cloud.
+On the plan catalog page, select Trial plan and choose your data center location from the Select a location drop-down.
+![](assets/2025-07-05-23-59-53.png)
+
+
+The Service name is pre-filled, you can modify it if needed.
+The resource group is set to Default.
+Accept the license agreement and click Create to provision a watsonx Orchestrate instance on IBM Cloud. The services page is displayed.
+Click Launch watsonx Orchestrate to access the service page and start using the service.
+![](assets/2025-07-06-00-00-40.png)
+
+
+https://us-south.watson-orchestrate.cloud.ibm.com/chat
+
+![](assets/2025-07-06-00-02-32.png)
+
+
+
+
+
+
+ There are different ways to use watson orchestrate, more information [here](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=orchestrate-logging-in-watsonx)
+
+ Using your watsonx Orchestrate account
+Starting at version 1.5.0, you can now use your watsonx Orchestrate account to pull images from Docker, and you no longer need an entitlement key to pull the images.
+
+[Log in](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/current?topic=orchestrate-logging-in-watsonx) to your watsonx Orchestrate account.
+
+Click your user profile and open the Settings page.
+
+Open the API details tab and click Generate API key.
+![](assets/2025-07-06-00-07-01.png)
+
+
+
+
+Installing the watsonx Orchestrate Developer Edition with ADK
+
+To install the watsonx Orchestrate Developer Edition with the ADK, run the following command in the CLI:
+
+```bash
+orchestrate server start --env-file={{The path of your .env file}}
+```
+
+for example
+
+orchestrate server start --env-file=/mnt/c/blog/hello-watsonx-agents/.env
 -----
 
 ### **🤖 Step 3: Create and Validate Your Agents**
