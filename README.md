@@ -1,4 +1,4 @@
-# 🖐️ Hello watsonx Agents
+# 🖐️ Hello Watsonx Orchestrate
 
 A minimal, fully-working **multi-agent demo** for the  
 [IBM watsonx-Orchestrate ADK](https://ibm.biz/wxo-adk-docs).
