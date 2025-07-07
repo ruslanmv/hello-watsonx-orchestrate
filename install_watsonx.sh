@@ -12,18 +12,16 @@
 # └────────────────────────────────────────────────────────────────────────────┘
 #
 # Installs a chosen STABLE version of IBM watsonx Orchestrate ADK in an
-# isolated Python virtual-environment (./venv) and starts the local
-# Developer Edition server.
+# isolated Python virtual-environment (./venv).
+#
+# This script prepares the environment but does NOT start the server.
 #
 # If a ./venv directory already exists, installation is skipped.
 #
 # ── ACCOUNT TYPES ────────────────────────────────────────────────────────────
-#   1. watsonx Orchestrate account
-#          · WO_INSTANCE + WO_API_KEY
-#          · WO_DEVELOPER_EDITION_SOURCE=orchestrate
-#   2. watsonx.ai account
-#          · WO_ENTITLEMENT_KEY + WATSONX_APIKEY + WATSONX_SPACE_ID
-#          · WO_DEVELOPER_EDITION_SOURCE=myibm
+#   Account type is determined by the WO_DEVELOPER_EDITION_SOURCE variable:
+#   1. 'orchestrate': Uses watsonx Orchestrate credentials (WO_INSTANCE + WO_API_KEY)
+#   2. 'myibm': Uses watsonx.ai credentials (WO_ENTITLEMENT_KEY + WATSONX_APIKEY + WATSONX_SPACE_ID)
 #
 # Ensure an appropriate `.env` exists in this directory before running.
 # ---------------------------------------------------------------------------
@@ -35,12 +33,12 @@ print_logo() {
   local BLUE="\033[1;34m"; local NC="\033[0m"
   echo -e "${BLUE}"
   cat <<'EOF'
-                _                            
-               | |                           
- _ __ _   _ ___| | __ _ _ __  _ __ _____   __
+                _
+               | |
+ _ __ _   _ ___| | __ _ _ __   _ __ _____   __
 | '__| | | / __| |/ _` | '_ \| '_ ` _ \ \ / /
-| |  | |_| \__ \ | (_| | | | | | | | | \ V / 
-|_|   \__,_|___/_|\__,_|_| |_|_| |_| |_|\_/   
+| |  | |_| \__ \ | (_| | | | | | | | | \ V /
+|_|   \__,_|___/_|\__,_|_| |_|_| |_| |_|\_/
 
 EOF
   echo -e "${NC}"
@@ -70,50 +68,42 @@ fi
 ADK_VERSIONS=( "1.5.0" "1.5.1" "1.6.0" "1.6.1" "1.6.2" )
 ENV_FILE="./.env"
 ADK_VERSION=""
+ACCOUNT_TYPE=""
 
 # ────────────────────────────────────────────────────────────────────────────
 #  Load .env *before* anything else
 # ────────────────────────────────────────────────────────────────────────────
 [[ -f "$ENV_FILE" ]] || { echo "❌ .env not found"; exit 1; }
-echo "📄 Loading variables from $ENV_FILE"
 set -a
 # shellcheck disable=SC1090
 source "$ENV_FILE"
 set +a
 
 # ────────────────────────────────────────────────────────────────────────────
-#  Detect account type & prevent mixed credentials
+#  Detect account type based on WO_DEVELOPER_EDITION_SOURCE
 # ────────────────────────────────────────────────────────────────────────────
-if [[ -n "${WO_API_KEY:-}" && -n "${WO_INSTANCE:-}" ]]; then
+if [[ "${WO_DEVELOPER_EDITION_SOURCE:-}" == "orchestrate" ]]; then
   ACCOUNT_TYPE="orchestrate"
-elif [[ -n "${WO_ENTITLEMENT_KEY:-}" && -n "${WATSONX_APIKEY:-}" && -n "${WATSONX_SPACE_ID:-}" ]]; then
+elif [[ "${WO_DEVELOPER_EDITION_SOURCE:-}" == "myibm" ]]; then
   ACCOUNT_TYPE="watsonx.ai"
 else
-  echo "❌ Could not detect account type from .env." >&2
-  echo "   Define either Orchestrate (WO_INSTANCE + WO_API_KEY) or" >&2
-  echo "   watsonx.ai (WO_ENTITLEMENT_KEY + WATSONX_APIKEY + WATSONX_SPACE_ID)." >&2
+  echo "❌ WO_DEVELOPER_EDITION_SOURCE is not set or has an invalid value in .env." >&2
+  echo "   It must be either 'orchestrate' or 'myibm'." >&2
   exit 1
 fi
+echo "🔍 Detected account source: ${WO_DEVELOPER_EDITION_SOURCE} (Account Type: ${ACCOUNT_TYPE})"
 
-# guard against both blocks present
-if [[ "$ACCOUNT_TYPE" == "orchestrate" && -n "${WO_ENTITLEMENT_KEY:-}" ]] ||
-   [[ "$ACCOUNT_TYPE" == "watsonx.ai" && -n "${WO_API_KEY:-}" ]]; then
-  echo "❌ Both Orchestrate and watsonx.ai credentials found in .env." >&2
-  echo "   Comment-out one block so only one set remains." >&2
-  exit 1
-fi
-echo "🔍 Detected account type: $ACCOUNT_TYPE"
 
 # ────────────────────────────────────────────────────────────────────────────
 #  Validate required keys
 # ────────────────────────────────────────────────────────────────────────────
 if [[ "$ACCOUNT_TYPE" == "orchestrate" ]]; then
   for V in WO_DEVELOPER_EDITION_SOURCE WO_INSTANCE WO_API_KEY; do
-    [[ -n "${!V:-}" ]] || { echo "❌ $V missing."; exit 1; }
+    [[ -n "${!V:-}" ]] || { echo "❌ $V is missing in .env for 'orchestrate' source."; exit 1; }
   done
-else
+else # watsonx.ai
   for V in WO_DEVELOPER_EDITION_SOURCE WO_ENTITLEMENT_KEY WATSONX_APIKEY WATSONX_SPACE_ID; do
-    [[ -n "${!V:-}" ]] || { echo "❌ $V missing."; exit 1; }
+    [[ -n "${!V:-}" ]] || { echo "❌ $V is missing in .env for 'myibm' source."; exit 1; }
   done
 fi
 
@@ -135,7 +125,7 @@ if command -v ibmcloud >/dev/null; then
   ibmcloud cr login
 else
   echo "⚠️  ibmcloud CLI not found; skipping IBM Cloud login." >&2
-  echo "   You will need to 'docker login registry.$REGION.watson-orchestrate.cloud.ibm.com' manually." >&2
+  echo "   You will need to 'docker login' manually." >&2
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -169,29 +159,13 @@ else
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
-#  Fix non-TTY error when piping “I accept”
-# ────────────────────────────────────────────────────────────────────────────
-export COMPOSE_INTERACTIVE_NO_CLI=1
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Reset & start Developer Edition
-# ────────────────────────────────────────────────────────────────────────────
-echo "♻️  Resetting any previous Dev Ed containers…"
-echo "I accept" | orchestrate server reset --env-file "$ENV_FILE" || true
-
-echo "🚀 Starting watsonx Orchestrate Developer Edition…"
-echo "I accept" | orchestrate server start --env-file "$ENV_FILE"
-
-echo "🔄 Activating local environment…"
-orchestrate env activate local
-
-# ────────────────────────────────────────────────────────────────────────────
 #  Done
 # ────────────────────────────────────────────────────────────────────────────
 echo
 if [[ -n "$ADK_VERSION" ]]; then
-  echo "✅  watsonx Orchestrate Developer Edition v$ADK_VERSION is live (venv activated)."
+  echo "✅  Environment setup for ADK v$ADK_VERSION is complete."
 else
-  echo "✅  watsonx Orchestrate Developer Edition is live (venv activated)."
+  echo "✅  Environment setup is complete."
 fi
+echo "   You can now activate the venv with 'source venv/bin/activate' and run the server."
 echo "   Happy building — ruslanmv.com 🚀"
