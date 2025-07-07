@@ -30,8 +30,8 @@ To make things easier, all the code for this tutorial is ready for you. Let's cl
 
     ```bash
     # This is a placeholder URL for the example.
-    git clone https://github.com/example/hello-watsonx-agents.git
-    cd hello-watsonx-agents
+    git clone https://github.com/example/hello-watsonx-orchestrate.git
+    cd hello-watsonx-orchestrate
     ```
 
 2.  **Create and Activate a Virtual Environment**
@@ -59,7 +59,7 @@ Now, we'll install the IBM watsonx Orchestrate Agent Developer Kit (ADK) and sta
     Use `pip` to install the core `orchestrate` library.
 
     ```bash
-    pip install --upgrade ibm-watsonx-orchestrate==1.6.1
+    pip install --upgrade ibm-watsonx-orchestrate==1.6.2
     ```
 
 2.  **Activate and Start the Local Server**
@@ -94,10 +94,8 @@ You can use at least one of these services to get access to the watsonx Orchestr
 
 
 
-
 Setup the environment
 The watsonx Orchestrate Developer Edition is distributed as a Docker image. In order to pull the images from Docker, you must configure an environment file with the appropriate data.
-
 
 
 Getting an entitlement key for watsonx Orchestrate Developer Edition
@@ -180,8 +178,6 @@ Click Launch watsonx Orchestrate to access the service page and start using the 
 https://us-south.watson-orchestrate.cloud.ibm.com/chat
 
 ![](assets/2025-07-06-00-02-32.png)
-
-
 
 
 
