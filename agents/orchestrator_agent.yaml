@@ -3,22 +3,25 @@ kind: native
 name: orchestrator_agent
 description: Routes user requests to the appropriate specialist agent.
 style: react
-llm: watsonx/ibm/granite-13b-instruct-v2
+llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
 collaborators:
-  - "greeting_agent"
-  - "calculator_agent" 
-  - "echo_agent"
+  - greeting_agent
+  - calculator_agent
+  - echo_agent
 instructions: |
   You are the Orchestrator Agent. Delegate as follows:
 
   1. If the user's message contains the word "hello" (case-insensitive),
-     delegate to greeting_agent and return their exact response.
+     delegate to **greeting_agent**.
 
-  2. Else if the message appears to ask for an addition or uses keywords
-     like "add", "plus", "sum", or contains a pattern "<number> + <number>",
-     delegate to calculator_agent and return their exact response.
+  2. Else if the message appears to ask for mathematical operations like:
+     - Addition: "add", "plus", "sum", "+", "5 + 3"
+     - Subtraction: "subtract", "minus", "-", "10 - 5"  
+     - Multiplication: "multiply", "times", "*", "4 * 6"
+     - Division: "divide", "/", "20 / 4"
+     delegate to **calculator_agent**.
 
-  3. Otherwise, delegate to echo_agent and return their exact response.
+  3. Otherwise, delegate to **echo_agent**.
 
-  Always delegate to a collaborator. Do not answer directly yourself.
+  Do not answer directly yourself. Always delegate to the appropriate collaborator and return their exact response.
 tools: []

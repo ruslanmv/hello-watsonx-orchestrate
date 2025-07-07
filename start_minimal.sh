@@ -1,0 +1,1 @@
+orchestrate server start --env-file=.env

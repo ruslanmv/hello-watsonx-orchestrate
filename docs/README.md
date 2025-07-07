@@ -51,6 +51,231 @@ To make things easier, all the code for this tutorial is ready for you. Let's cl
     venv\Scripts\activate.bat
     ```
 
+
+
+#Variable ENviroments
+
+
+There are different ways to configure the .env file for watsonx Orchestrate Developer Edition and clarify the credential requirements.
+
+
+.env File Configuration Options
+There are three main ways to configure your .env file for the local watsonx Orchestrate Developer Edition:
+
+Option 1: Using watsonx.ai Account (Recommended for Local Development)
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=<your_entitlement_key_from_myibm>
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+
+# watsonx.ai Configuration
+WATSONX_APIKEY=<your_watsonx_api_key>
+WATSONX_SPACE_ID=<your_space_id>
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+
+Option 2: Using watsonx Orchestrate Account (Version 1.5.0+)
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=orchestrate
+WO_INSTANCE=<your_service_instance_url>
+WO_API_KEY=<your_wxo_api_key>
+
+Option 3: Hybrid Approach (Fallback Method)
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=<your_entitlement_key>
+WO_INSTANCE=<your_service_instance_url>
+WO_API_KEY=<your_wxo_api_key>
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+
+For Local Development (Your Use Case)
+Since you want to use the local version, I recommend Option 1 with watsonx.ai credentials:
+
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=<get_from_myibm.ibm.com>
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+
+# watsonx.ai Configuration  
+WATSONX_APIKEY=<your_watsonx_api_key>
+WATSONX_SPACE_ID=<your_space_id>
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+
+Can You Use Another User's Credentials?
+Yes, you can use different credentials, but with considerations:
+watsonx.ai Credentials: You can use any valid watsonx.ai account - it doesn't have to be the same as your watsonx Orchestrate account. The watsonx.ai credentials are used for:
+
+Pulling Docker images for the Developer Edition
+Accessing LLM models (if you use watsonx/* models)
+Entitlement Key: You can use any valid IBM entitlement key that has access to watsonx products
+
+Important Notes:
+
+Legal/Licensing: Make sure you have proper licensing rights to use the credentials
+Access Control: The person whose credentials you use needs appropriate access to watsonx.ai services
+Cost: Usage will be billed to the account whose credentials you use
+How to Get the Required Values
+For WO_ENTITLEMENT_KEY:
+Go to My IBM
+Click View Library
+Click Add a new key +
+Copy the entitlement key
+For WATSONX_APIKEY and WATSONX_SPACE_ID:
+Go to IBM Cloud watsonx.ai
+Create a watsonx.ai instance (if you don't have one)
+Get your API key from IBM Cloud (Account → Manage → Access (IAM) → API keys)
+Get your Space ID from the Developer access page
+Complete .env File Example for Local Development:
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=eylkjlkjsdlkjIsInR5cCI6IkpXVCJ9...
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+
+# watsonx.ai Configuration
+WATSONX_APIKEY=your-ibm-cloud-api-key-here
+WATSONX_SPACE_ID=12345678-1234-1234-1234-123456789abc
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+
+Starting the Server:
+orchestrate server start --env-file=.env
+
+Key Points:
+For local development, you primarily need the WO_DEVELOPER_EDITION_* variables to pull and run the Docker images
+WATSONX_* variables are needed if you want to use watsonx/* LLM models in your agents
+You can use credentials from different IBM accounts as long as they have the necessary permissions
+WO_INSTANCE and WO_API_KEY are only needed if you plan to sync with a remote watsonx Orchestrate instance later
+Your current template is correct - just fill in the actual values based on the credentials you have access to.
+
+WATSONX_APIKEY requires WATSONX_SPACE_ID to be set. The combination of WATSONX_APIKEY with WATSONX_PROJECT_ID alone is not supported in this configuration.
+
+Step-by-Step Guide to Get Your WATSONX_SPACE_ID
+Step 1: Access IBM Cloud
+Go to [IBM Cloud](https://cloud.ibm.com/)
+Log in with your IBM Cloud credentials
+Step 2: Navigate to watsonx.ai
+From the IBM Cloud dashboard, search for "watsonx.ai" in the search bar
+Click on your watsonx.ai service instance
+Or directly go to the [Developer access page](https://dataplatform.cloud.ibm.com/developer-access?context=wx)
+Step 3: Find Your Space ID
+Option A: Through Developer Access Page
+
+Go to [Developer access](https://dataplatform.cloud.ibm.com/developer-access?context=wx) page on IBM Cloud
+Look for the "Space ID" section
+![](assets/2025-07-07-20-14-11.png)
+If you dont have space you can create a one.
+
+
+
+
+Step 2: Check Space Permissions
+In watsonx.ai, go to "Spaces"
+Find the space that you have created
+Click on the space to open it
+Go to "Manage" or "Access control" tab
+Check if your user/service ID has proper permissions
+Step 3: Add Permissions to the Space
+In the space's Access control section
+Click "Add collaborators" or "Manage access"
+Add your user account with "Admin" or "Editor" role
+If you are using for example TechZone you can
+Add access groups as collaborators
+Save the changes
+Step 4: Verify API Key Permissions
+Go to IBM Cloud IAM
+Find your API key (the one in your .env file)
+Click on it to view details
+Ensure it has the following permissions:
+Watson Machine Learning service access
+Watson Studio service access
+Resource group access where your watsonx.ai instance is located
+Step 5: Create a New Space (Alternative Solution)
+If you can't access the existing space, create a new one:
+
+In watsonx.ai, go to "Spaces"
+Click "Create a space"
+Give it a name (e.g., "My Development Space")
+Add a description
+Click "Create"
+Copy the new Space ID
+Step 6: Update Your .env File
+Update your .env file with the correct Space ID:
+
+
+
+Copy the Space ID value
+Option B: Through watsonx.ai Interface
+
+In your watsonx.ai instance, look for "Spaces" in the navigation
+Click on your existing space or create a new one
+The Space ID will be visible in the space details or URL
+Option C: Create a New Space (if you don't have one)
+
+In watsonx.ai, go to "Spaces"
+Click "Create a space"
+Give it a name and description
+Once created, note down the Space ID
+Step 4: Update Your .env File
+Replace your current configuration with:
+
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+
+# watsonx.ai Configuration
+WATSONX_APIKEY=
+WATSONX_SPACE_ID=<your_actual_space_id_here>
+WATSONX_URL=https://us-south.ml.cloud.ibm.com
+
+Remove the PROJECT_ID line entirely and replace <your_actual_space_id_here> with the actual Space ID you obtained.
+
+Step 5: Restart Your Environment
+Stop the current server:
+
+orchestrate server stop
+
+Start the server with your updated .env file:
+
+orchestrate server start --env-file=path/to/your/.env
+
+Activate the local environment:
+
+orchestrate env activate local
+
+Alternative: Use watsonx Orchestrate Credentials Instead
+If you continue having issues with watsonx.ai credentials, you can use your watsonx Orchestrate credentials instead (if you have a watsonx Orchestrate account):
+
+# watsonx Orchestrate Developer Edition Configuration
+WO_DEVELOPER_EDITION_SOURCE=orchestrate
+WO_INSTANCE=<your_service_instance_url>
+WO_API_KEY=<your_wxo_api_key>
+
+Why This Happens
+The watsonx Orchestrate Developer Edition requires either:
+
+watsonx.ai credentials: WATSONX_APIKEY + WATSONX_SPACE_ID
+watsonx Orchestrate credentials: WO_INSTANCE + WO_API_KEY
+The system doesn't support mixing WATSONX_APIKEY with PROJECT_ID because spaces and projects have different access patterns and permissions in watsonx.ai.
+
+
+Models Compatible with Function Calling
+Based on the watsonx Orchestrate ADK documentation, here are the models that support function calling (tools):
+
+IBM Granite Models (Recommended)
+watsonx/ibm/granite-3-8b-instruct
+watsonx/ibm/granite-3-2b-instruct
+watsonx/ibm/granite-3-8b-instruct (latest version)
+Meta Llama Models
+watsonx/meta-llama/llama-3-3-70b-instruct
+watsonx/meta-llama/llama-3-1-70b-instruct
+watsonx/meta-llama/llama-3-1-8b-instruct
+watsonx/meta-llama/llama-3-2-90b-vision-instruct
+Other Compatible Models
+watsonx/mistralai/mixtral-8x7b-instruct-v01
+watsonx/mistralai/mistral-large
+How to Check Available Models
+You can list all available models in your environment:
+
+
 ### **⚙️ Step 2: Install and Configure the ADK**
 
 Now, we'll install the IBM watsonx Orchestrate Agent Developer Kit (ADK) and start the local development server.
@@ -287,18 +512,26 @@ This is the brain of our system. It contains the routing logic to delegate tasks
 spec_version: v1
 kind: native
 name: orchestrator_agent
-description: The main agent that routes tasks to the correct collaborator.
-llm: watsonx/meta-llama/llama-3-8b-instruct
+description: Routes user requests to the appropriate specialist agent.
+style: react
+llm: watsonx/ibm/granite-13b-instruct-v2
 collaborators:
-  - greeting_agent
-  - echo_agent
-  - calculator_agent
+  - "greeting_agent"
+  - "calculator_agent" 
+  - "echo_agent"
 instructions: |
-  You are a router. Your job is to delegate tasks to the appropriate agent based on these rules:
-  - If the user's message contains the word "hello" (case-insensitive), delegate to the `greeting_agent`.
-  - If the user's message involves math, calculation, or adding numbers, delegate to the `calculator_agent`.
-  - For ALL other inputs, delegate to the `echo_agent`.
-  Do not answer directly. Only delegate.
+  You are the Orchestrator Agent. Delegate as follows:
+
+  1. If the user's message contains the word "hello" (case-insensitive),
+     delegate to greeting_agent and return their exact response.
+
+  2. Else if the message appears to ask for an addition or uses keywords
+     like "add", "plus", "sum", or contains a pattern "<number> + <number>",
+     delegate to calculator_agent and return their exact response.
+
+  3. Otherwise, delegate to echo_agent and return their exact response.
+
+  Always delegate to a collaborator. Do not answer directly yourself.
 tools: []
 ```
 
@@ -316,19 +549,53 @@ The ADK requires the `@tool` decorator to discover and register a Python functio
 
 ```python
 # calculator_tool.py
-from orchestrate_sdk import tool
-from typing import Annotated
-from pydantic import Field
+from ibm_watsonx_orchestrate.agent_builder.tools import tool
 
-@tool(name="add", description="A tool to add two numbers.")
-def add(a: Annotated[int, Field(description="The first number to add")],
-        b: Annotated[int, Field(description="The second number to add")]) -> str:
-  """
-  Adds two numbers together and returns the result as a string.
-  Use this tool for any addition calculation.
-  """
-  result = a + b
-  return f"The result of {a} + {b} is {result}."
+@tool
+def add(a: float, b: float) -> float:
+    """
+    Add two numbers together.
+    
+    :param a: The first number to add
+    :param b: The second number to add
+    :returns: The sum of a and b
+    """
+    return a + b
+
+@tool
+def subtract(a: float, b: float) -> float:
+    """
+    Subtract the second number from the first number.
+    
+    :param a: The number to subtract from
+    :param b: The number to subtract
+    :returns: The difference of a and b
+    """
+    return a - b
+
+@tool
+def multiply(a: float, b: float) -> float:
+    """
+    Multiply two numbers together.
+    
+    :param a: The first number to multiply
+    :param b: The second number to multiply
+    :returns: The product of a and b
+    """
+    return a * b
+
+@tool
+def divide(a: float, b: float) -> float:
+    """
+    Divide the first number by the second number.
+    
+    :param a: The dividend (number to be divided)
+    :param b: The divisor (number to divide by)
+    :returns: The quotient of a divided by b
+    """
+    if b == 0:
+        raise ValueError("Cannot divide by zero")
+    return a / b
 ```
 
 #### **4.2: Create the Calculator Agent (`calculator_agent.yaml`)**
@@ -336,16 +603,21 @@ def add(a: Annotated[int, Field(description="The first number to add")],
 This agent is explicitly designed to use our new `add` tool.
 
 ```yaml
-# calculator_agent.yaml
 spec_version: v1
 kind: native
 name: calculator_agent
-description: An agent that can perform addition.
-llm: watsonx/meta-llama/llama-3-8b-instruct
+description: Performs addition by calling the `add` tool.
+style: react
+llm: watsonx/ibm/granite-13b-instruct-v2
 instructions: |
-  You are a calculator. When asked to add numbers, you MUST use the `add` tool.
+  You are a calculator.
+  • When asked to add or sum two numbers, you MUST call the `add` tool.
+  • Do **not** compute the result yourself.
+  • After the tool returns, forward its result to the user unchanged.
 tools:
-  - add
+  - add        # defined in tools/calculator_tool.py
+
+
 ```
 
 *Validate it:* `orchestrate validate -f calculator_agent.yaml`
@@ -362,17 +634,20 @@ With all our files defined and validated, let's import them into Orchestrate and
     Tools must exist before the agents that rely on them.
 
     ```bash
-    orchestrate tools import -k python -f calculator_tool.py
+    orchestrate tools import -k python -f tools/calculator_tool.py
     ```
 
 3.  **Import the Agents**
     Now import all the agents.
 
-    ```bash
-    orchestrate agents import -f greeting_agent.yaml
-    orchestrate agents import -f echo_agent.yaml
-    orchestrate agents import -f calculator_agent.yaml
-    orchestrate agents import -f orchestrator_agent.yaml
+```bash
+orchestrate agents import -f agents/greeting_agent.yaml
+orchestrate agents import -f agents/calculator_agent.yaml  
+orchestrate agents import -f agents/echo_agent.yaml
+  ```
+   ```bash    
+# Finally import the orchestrator
+orchestrate agents import -f agents/orchestrator_agent.yaml
     ```
 
 4.  **Start the Chat\!**
@@ -381,6 +656,155 @@ With all our files defined and validated, let's import them into Orchestrate and
     ```bash
     orchestrate chat start --agents orchestrator_agent
     ```
+
+
+4. Check Agent Status
+Verify your agents were imported correctly:
+
+orchestrate agents list
+
+5. Try Different Agent Styles
+If the issue persists, try changing the style from react to default in your agent configurations, as mentioned in the known issues documentation.
+
+6. Test Individual Agents First
+Before testing the orchestrator, try testing individual agents directly to ensure they work:
+
+Test with "hello" to see if greeting_agent responds
+Test with "add 2 and 3" to see if calculator_agent responds
+The most likely cause is the first interaction failure issue. Try waiting a few minutes after startup and then retry your messages. If that doesn't work, check your agent configurations and import order as described above.
+
+Known issues and limitations
+Managing watsonx Orchestrate Developer Edition
+Creating Agents
+can you explain how can test each single agent and and which llm is aviable to use , does this is correct ? llm: watsonx/meta-llama/llama-3-8b-instruct
+I'll help you understand how to test individual agents and what LLMs are available. Let me search for information about testing agents and available LLM models.
+
+
+Searched test individual agents chat interface agent selection available LLM models watsonx
+
+Searched chat interface select specific agent test individual agent available models list
+Based on the documentation I found, I can now provide you with comprehensive information about testing individual agents and available LLM models.
+
+How to Test Individual Agents
+1. Using the Chat Interface with Agent Selection
+When you start the chat interface, you can select specific agents to test:
+
+Start the chat interface:
+
+orchestrate chat start
+
+Access the chat UI:
+Navigate to http://localhost:3000/chat-lite in your browser
+
+Select a specific agent:
+In the chat interface, you'll see a list of available agents. You can select the specific agent you want to test from this list.
+
+2. Testing Individual Agents via CLI Commands
+You can also test agents individually using CLI commands:
+
+# List all available agents
+orchestrate agents list
+
+# Test a specific agent directly (if supported)
+# This would show you which agents are available for testing
+
+3. Testing Each of Your Agents
+For your specific project, test each agent individually:
+
+Test the Greeting Agent:
+
+Select greeting_agent in the chat interface
+Type: "hello"
+Expected response: "Hello! I am the Greeting Agent."
+
+![](assets/2025-07-07-22-31-10.png)
+
+
+Test the Calculator Agent:
+
+Select calculator_agent in the chat interface
+Type: "add 5 and 3"
+Expected response: The agent should call the add tool and return the result
+Test the Echo Agent:
+
+Select echo_agent in the chat interface
+Type: "test message"
+Expected response: "The Echo Agent heard you say: test message"
+Test the Orchestrator Agent:
+
+Select orchestrator_agent in the chat interface
+Try different inputs to test routing:
+"hello" → should route to greeting_agent
+"add 2 and 3" → should route to calculator_agent
+"anything else" → should route to echo_agent
+Available LLM Models
+Your LLM Configuration is Correct
+Yes, llm: watsonx/meta-llama/llama-3-8b-instruct is a correct and valid LLM specification.
+
+Available LLM Providers and Models
+Based on the documentation, watsonx Orchestrate ADK supports these providers:
+
+Provider	Provider ID	Example Models
+watsonx.ai	watsonx	watsonx/meta-llama/llama-3-8b-instruct<br>watsonx/meta-llama/llama-3-2-90b-vision-instruct<br>watsonx/ibm/granite-3-8b-instruct
+OpenAI	openai	openai/gpt-4<br>openai/gpt-3.5-turbo
+Anthropic	anthropic	anthropic/claude-3-sonnet
+Google	google	google/gemini-2.0-flash
+Mistral	mistral-ai	mistral-ai/mistral-large
+OpenRouter	openrouter	Various models via OpenRouter
+Ollama	ollama	Local models via Ollama
+Common watsonx Models You Can Use
+From the examples in the documentation, these are valid watsonx models:
+
+# Your current model (correct)
+llm: watsonx/meta-llama/llama-3-8b-instruct
+
+# Other available watsonx models
+llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
+llm: watsonx/meta-llama/llama-3-1-70b-instruct  
+llm: watsonx/meta-llama/llama-3-3-70b-instruct
+llm: watsonx/ibm/granite-3-8b-instruct
+
+How to Check Available Models
+You can list all available models in your environment:
+
+# List all available LLM models
+orchestrate models list
+
+# List with raw output for more details
+orchestrate models list --raw
+
+How to Add Custom Models
+If you need to add additional models:
+
+# Add a custom watsonx model
+orchestrate models add --name watsonx/meta-llama/llama-3-2-90b-vision-instruct --app-id your_credentials
+
+# Add models from other providers (requires API keys)
+orchestrate models add --name openai/gpt-4 --app-id openai_creds
+
+Recommended Testing Approach
+Start with individual agents first:
+
+orchestrate chat start
+
+Test each agent separately before testing the orchestrator
+
+Use the correct LLM (your current one is fine):
+
+llm: watsonx/meta-llama/llama-3-8b-instruct
+
+If agents don't respond, try:
+
+Wait 2-3 minutes after startup
+Try a different LLM model
+Change agent style from react to default
+Your LLM configuration is correct, and you should be able to test individual agents by selecting them in the chat interface at http://localhost:3000/chat-lite.
+
+Managing custom LLMs
+Creating evaluation dataset
+Importing Agents
+
+
 
 #### **Testing Scenarios**
 

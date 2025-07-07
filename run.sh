@@ -1,7 +1,5 @@
-#!/usr/bin/env bash
-# ────────────────────────────────────────────────────────────────────────────
-#  watsonx Orchestrate Developer Edition - UI Only Runner
-# ────────────────────────────────────────────────────────────────────────────
+#!/bin/bash
+# run.sh - Import agents and tools, then optionally start the chat UI
 
 set -e  # Exit on any error
 
@@ -10,173 +8,252 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Configuration
-# ────────────────────────────────────────────────────────────────────────────
+# Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-print_info "watsonx Orchestrate Developer Edition - UI Runner"
-print_info "Script directory: $SCRIPT_DIR"
+echo -e "${GREEN}=== watsonx Orchestrate Agent Setup ===${NC}"
+echo "Working directory: $SCRIPT_DIR"
 
-# ────────────────────────────────────────────────────────────────────────────
-#  Check if services are running
-# ────────────────────────────────────────────────────────────────────────────
-print_info "Checking if watsonx Orchestrate services are running..."
+# Function to check if a command was successful
+check_command() {
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ $1 successful${NC}"
+    else
+        echo -e "${RED}✗ $1 failed${NC}"
+        exit 1
+    fi
+}
 
-# Check if Docker containers are running
-if ! docker ps --format "table {{.Names}}" | grep -q "wxo-server"; then
-    print_error "watsonx Orchestrate containers are not running!"
-    print_info "Please start the services first using your startup script."
-    exit 1
-fi
+# Function to check if orchestrate command is available
+check_orchestrate() {
+    if ! command -v orchestrate &> /dev/null; then
+        echo -e "${RED}Error: 'orchestrate' command not found${NC}"
+        echo "Please make sure the watsonx Orchestrate ADK is installed and in your PATH"
+        exit 1
+    fi
+}
 
-print_success "watsonx Orchestrate containers are running"
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Check service health
-# ────────────────────────────────────────────────────────────────────────────
-print_info "Checking service health..."
-
-# Function to check if a URL is responding
-check_url() {
-    local url=$1
-    local service_name=$2
-    local max_attempts=10
-    local attempt=1
+# Function to check if server is running
+check_server() {
+    echo -e "${YELLOW}Checking if orchestrate server is running...${NC}"
     
-    while [[ $attempt -le $max_attempts ]]; do
-        if curl -s -f "$url" >/dev/null 2>&1; then
-            print_success "$service_name is responding"
-            return 0
+    # Try to ping the server
+    if curl -s http://localhost:4321/api/v1/health > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ Server is running${NC}"
+    else
+        echo -e "${RED}✗ Server is not running or not ready${NC}"
+        echo "Please start the server first with: ./start.sh"
+        echo "Or run: orchestrate server start --env-file=.env"
+        exit 1
+    fi
+}
+
+# Function to activate local environment
+activate_environment() {
+    echo -e "${CYAN}Step 1: Activating local environment...${NC}"
+    orchestrate env activate local
+    check_command "Environment activation"
+}
+
+# Function to import tools
+import_tools() {
+    echo -e "${CYAN}Step 2: Importing tools...${NC}"
+    
+    # Check if tools directory exists
+    if [ ! -d "tools" ]; then
+        echo -e "${RED}Error: tools/ directory not found${NC}"
+        echo "Please make sure you have a tools/ directory with your tool files"
+        exit 1
+    fi
+    
+    # Import calculator tool
+    if [ -f "tools/calculator_tool.py" ]; then
+        echo "Importing calculator tool..."
+        orchestrate tools import -k python -f tools/calculator_tool.py
+        check_command "Calculator tool import"
+    else
+        echo -e "${YELLOW}Warning: tools/calculator_tool.py not found, skipping...${NC}"
+    fi
+    
+    # Import any other Python tools in the tools directory
+    for tool_file in tools/*.py; do
+        if [ -f "$tool_file" ] && [ "$tool_file" != "tools/calculator_tool.py" ]; then
+            echo "Importing $(basename "$tool_file")..."
+            orchestrate tools import -k python -f "$tool_file"
+            check_command "$(basename "$tool_file") import"
         fi
-        
-        if [[ $attempt -eq $max_attempts ]]; then
-            print_warning "$service_name is not responding at $url"
-            return 1
+    done
+    
+    # Import any OpenAPI tools
+    for tool_file in tools/*.yaml tools/*.yml; do
+        if [ -f "$tool_file" ]; then
+            echo "Importing $(basename "$tool_file")..."
+            orchestrate tools import -k openapi -f "$tool_file"
+            check_command "$(basename "$tool_file") import"
         fi
-        
-        print_info "Waiting for $service_name... (attempt $attempt/$max_attempts)"
-        sleep 3
-        ((attempt++))
     done
 }
 
-# Check API health
-check_url "http://localhost:4321/health" "API Service"
-
-# Check if UI port is accessible (we don't need the full UI to be ready)
-if netstat -tuln 2>/dev/null | grep -q ":3000 " || ss -tuln 2>/dev/null | grep -q ":3000 "; then
-    print_success "UI port 3000 is accessible"
-else
-    print_warning "UI port 3000 might not be ready yet"
-fi
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Activate local environment (if needed)
-# ────────────────────────────────────────────────────────────────────────────
-print_info "Ensuring local environment is active..."
-
-# Check current environment
-current_env=$(orchestrate env list 2>/dev/null | grep "(active)" | awk '{print $1}' || echo "none")
-
-if [[ "$current_env" != "local" ]]; then
-    print_info "Activating local environment..."
-    if orchestrate env activate local; then
-        print_success "Local environment activated"
-    else
-        print_warning "Could not activate local environment, but services should still be accessible"
-    fi
-else
-    print_success "Local environment is already active"
-fi
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Display service information
-# ────────────────────────────────────────────────────────────────────────────
-echo
-print_success "watsonx Orchestrate Developer Edition is running!"
-echo
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "${GREEN}Available Services:${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
-echo -e "🌐 ${BLUE}Web UI (Chat Interface):${NC}"
-echo -e "   ${YELLOW}http://localhost:3000/chat-lite${NC}"
-echo
-echo -e "🔧 ${BLUE}API Endpoint:${NC}"
-echo -e "   ${YELLOW}http://localhost:4321/api/v1${NC}"
-echo
-echo -e "📚 ${BLUE}API Documentation:${NC}"
-echo -e "   ${YELLOW}http://localhost:4321/docs${NC}"
-echo
-echo -e "💚 ${BLUE}Health Check:${NC}"
-echo -e "   ${YELLOW}http://localhost:4321/health${NC}"
-echo
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "${GREEN}Next Steps:${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo
-echo -e "📝 ${BLUE}To create and import tools:${NC}"
-echo -e "   ${YELLOW}orchestrate tools import -k python -f <your_tool_file.py>${NC}"
-echo -e "   ${YELLOW}orchestrate tools import -k openapi -f <your_openapi_spec.yaml>${NC}"
-echo
-echo -e "🤖 ${BLUE}To create and import agents:${NC}"
-echo -e "   ${YELLOW}orchestrate agents import -f <your_agent_file.yaml>${NC}"
-echo
-echo -e "💬 ${BLUE}To start chat (after creating agents):${NC}"
-echo -e "   ${YELLOW}orchestrate chat start${NC}"
-echo
-echo -e "📋 ${BLUE}To list current resources:${NC}"
-echo -e "   ${YELLOW}orchestrate tools list${NC}"
-echo -e "   ${YELLOW}orchestrate agents list${NC}"
-echo -e "   ${YELLOW}orchestrate env list${NC}"
-echo
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Optional: Open browser
-# ────────────────────────────────────────────────────────────────────────────
-echo
-read -p "$(echo -e "${BLUE}[INFO]${NC} Would you like to open the Web UI in your browser? (y/N): ")" -n 1 -r
-echo
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    print_info "Opening Web UI in browser..."
+# Function to import agents
+import_agents() {
+    echo -e "${CYAN}Step 3: Importing agents...${NC}"
     
-    # Try different browser commands based on the system
-    if command -v xdg-open >/dev/null 2>&1; then
-        xdg-open "http://localhost:3000/chat-lite" >/dev/null 2>&1 &
-    elif command -v open >/dev/null 2>&1; then
-        open "http://localhost:3000/chat-lite" >/dev/null 2>&1 &
-    elif command -v start >/dev/null 2>&1; then
-        start "http://localhost:3000/chat-lite" >/dev/null 2>&1 &
-    else
-        print_warning "Could not detect browser command. Please manually open:"
-        echo -e "   ${YELLOW}http://localhost:3000/chat-lite${NC}"
+    # Check if agents directory exists
+    if [ ! -d "agents" ]; then
+        echo -e "${RED}Error: agents/ directory not found${NC}"
+        echo "Please make sure you have an agents/ directory with your agent files"
+        exit 1
     fi
     
-    print_success "Browser should open shortly"
-fi
+    # Import individual agents first (not the orchestrator)
+    declare -a individual_agents=("greeting_agent.yaml" "calculator_agent.yaml" "echo_agent.yaml")
+    
+    for agent in "${individual_agents[@]}"; do
+        if [ -f "agents/$agent" ]; then
+            echo "Importing $agent..."
+            orchestrate agents import -f "agents/$agent"
+            check_command "$agent import"
+        else
+            echo -e "${YELLOW}Warning: agents/$agent not found, skipping...${NC}"
+        fi
+    done
+    
+    # Import any other agent files (except orchestrator)
+    for agent_file in agents/*.yaml agents/*.yml; do
+        if [ -f "$agent_file" ]; then
+            agent_name=$(basename "$agent_file")
+            # Skip if it's the orchestrator or already imported
+            if [[ "$agent_name" != "orchestrator_agent.yaml" ]] && [[ ! " ${individual_agents[@]} " =~ " ${agent_name} " ]]; then
+                echo "Importing $agent_name..."
+                orchestrate agents import -f "$agent_file"
+                check_command "$agent_name import"
+            fi
+        fi
+    done
+    
+    # Import orchestrator agent last
+    if [ -f "agents/orchestrator_agent.yaml" ]; then
+        echo "Importing orchestrator agent (final step)..."
+        orchestrate agents import -f agents/orchestrator_agent.yaml
+        check_command "Orchestrator agent import"
+    else
+        echo -e "${YELLOW}Warning: agents/orchestrator_agent.yaml not found${NC}"
+    fi
+}
 
-echo
-print_success "UI runner completed successfully!"
-print_info "The services will continue running in the background."
-print_info "Use 'orchestrate server stop' to stop all services when done."
+# Function to list imported agents
+list_agents() {
+    echo -e "${CYAN}Step 4: Checking imported agents...${NC}"
+    echo "Currently imported agents:"
+    orchestrate agents list
+    check_command "Agent listing"
+}
+
+# Function to ask about starting UI
+# Function to ask about starting UI
+ask_start_ui_old() {
+    echo -e "${CYAN}Step 5: Chat Interface${NC}"
+    echo ""
+    echo "All agents have been imported successfully!"
+    echo ""
+    
+    # Show available options
+    echo "You can now:"
+    echo "1. Start the chat UI (opens in browser)"
+    echo "2. Exit and start the UI later"
+    echo ""
+    
+    while true; do
+        read -p "What would you like to do? (1/2): " choice
+        case $choice in
+            1)
+                echo -e "${GREEN}Starting chat UI...${NC}"
+                echo "Opening chat interface in your browser..."
+                orchestrate chat start
+                break
+                ;;
+            2)
+                echo -e "${YELLOW}Exiting. You can start the chat UI later with:${NC}"
+                echo "  orchestrate chat start"
+                echo ""
+                echo "The chat UI will be available at: http://localhost:3000/chat-lite"
+                break
+                ;;
+            *)
+                echo "Please enter 1 or 2"
+                ;;
+        esac
+    done
+}
+
+# Function to ask about starting UI
+ask_start_ui() {
+    echo -e "${CYAN}Step 5: Chat Interface${NC}"
+    echo ""
+    echo "All agents have been imported successfully!"
+    echo ""
+    
+    while true; do
+        read -p "Would you like to start the chat UI now? (y/n): " choice
+        case $choice in
+            [Yy]*)
+                echo -e "${GREEN}Starting chat UI...${NC}"
+                orchestrate chat start &
+                sleep 2
+                echo ""
+                echo -e "${GREEN}✓ Chat UI is starting!${NC}"
+                echo -e "${YELLOW}📌 Open your browser and go to: http://localhost:3000/chat-lite${NC}"
+                echo ""
+                break
+                ;;
+            [Nn]*)
+                echo -e "${YELLOW}You can start the chat UI later with: orchestrate chat start${NC}"
+                echo "The chat UI will be available at: http://localhost:3000/chat-lite"
+                break
+                ;;
+            *)
+                echo "Please enter y or n"
+                ;;
+        esac
+    done
+}
+
+
+# Function to show helpful information
+show_info() {
+    echo ""
+    echo -e "${BLUE}=== Helpful Information ===${NC}"
+    echo "• Chat UI will be available at: http://localhost:3000/chat-lite"
+    echo "• API documentation: http://localhost:4321/docs"
+    echo "• To stop the server: orchestrate server stop"
+    echo "• To view logs: orchestrate server logs"
+    echo "• To list agents: orchestrate agents list"
+    echo "• To list tools: orchestrate tools list"
+    echo ""
+}
+
+# Main execution
+main() {
+    echo -e "${GREEN}Starting agent import and setup process...${NC}"
+    echo ""
+    
+    # Run all steps
+    check_orchestrate
+    check_server
+    activate_environment
+    import_tools
+    import_agents
+    list_agents
+    show_info
+    ask_start_ui
+    
+    echo ""
+    echo -e "${GREEN}=== Setup Complete! ===${NC}"
+}
+
+# Run main function
+main
