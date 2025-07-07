@@ -3,7 +3,7 @@ kind: native
 name: greeting_agent
 description: A friendly agent that handles greetings only.
 style: react
-llm: watsonx/meta-llama/llama-3-8b-instruct
+llm: watsonx/ibm/granite-13b-instruct-v2
 instructions: |
   You are the Greeting Agent.
   • If the user's message contains the word **“hello”** (case-insensitive),

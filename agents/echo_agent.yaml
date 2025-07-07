@@ -3,7 +3,7 @@ kind: native
 name: echo_agent
 description: An agent that echoes the user’s input back verbatim.
 style: react
-llm: watsonx/meta-llama/llama-3-8b-instruct
+llm: watsonx/ibm/granite-13b-instruct-v2
 instructions: |
   You are the Echo Agent.
   Always repeat the user's exact input.
