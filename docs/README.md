@@ -725,17 +725,30 @@ Test the Calculator Agent:
 Select calculator_agent in the chat interface
 Type: "add 5 and 3"
 Expected response: The agent should call the add tool and return the result
+![](assets/2025-07-07-22-32-28.png)
+
+
+
 Test the Echo Agent:
 
 Select echo_agent in the chat interface
 Type: "test message"
 Expected response: "The Echo Agent heard you say: test message"
+
+![](assets/2025-07-07-22-33-04.png)
+
 Test the Orchestrator Agent:
 
 Select orchestrator_agent in the chat interface
 Try different inputs to test routing:
 "hello" → should route to greeting_agent
-"add 2 and 3" → should route to calculator_agent
+"add 2 and 2" → should route to calculator_agent
+![](assets/2025-07-07-22-35-46.png)
+You can analize the reasoning
+![](assets/2025-07-07-22-36-34.png)
+
+
+
 "anything else" → should route to echo_agent
 Available LLM Models
 Your LLM Configuration is Correct
