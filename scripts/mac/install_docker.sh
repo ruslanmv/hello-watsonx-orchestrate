@@ -2,6 +2,7 @@
 
 # Docker Compose v2 Installation Script for macOS
 # Compatible with watsonx Orchestrate ADK
+# Version 2.0 - Fixed to handle pre-existing Colima instances
 
 set -e  # Exit on any error
 
@@ -113,6 +114,8 @@ install_colima() {
             configure_colima
             return 0
         fi
+        # If reinstalling, uninstall first to ensure a clean state
+        brew uninstall colima docker docker-compose || true
     fi
     
     print_color $BLUE "Installing Colima..."
@@ -130,10 +133,20 @@ install_colima() {
 configure_colima() {
     print_header "Configuring Colima"
     
-    # Stop Colima if running
+    # Check for a pre-existing Colima instance and delete it to avoid conflicts
     if colima status >/dev/null 2>&1; then
-        print_color $YELLOW "Stopping existing Colima instance..."
-        colima stop
+        print_color $YELLOW "An existing Colima instance was found."
+        print_color $YELLOW "To prevent configuration errors, the existing instance must be deleted."
+        read -p "Do you want to PERMANENTLY DELETE the existing Colima instance and create a new one? (y/N): " delete_confirm
+        if [[ $delete_confirm =~ ^[Yy]$ ]]; then
+            print_color $BLUE "Stopping and deleting existing Colima instance..."
+            colima stop || true # Stop first, ignore error if already stopped
+            colima delete
+            print_color $GREEN "✓ Existing instance deleted."
+        else
+            print_color $RED "Configuration aborted. Cannot apply new settings without deleting the existing instance."
+            return 1
+        fi
     fi
     
     # Architecture-specific configuration
@@ -175,16 +188,15 @@ verify_installation() {
     fi
     
     echo "Checking Docker Compose..."
-    if command_exists docker-compose; then
-        compose_version=$(docker-compose --version)
+    # Use 'docker compose' (with a space) for v2 verification
+    if docker compose version >/dev/null 2>&1; then
+        compose_version=$(docker compose version)
         print_color $GREEN "✓ Docker Compose: $compose_version"
-        
-        # Check if it's v2
-        if [[ $compose_version == *"version 2"* ]] || [[ $compose_version == *"version v2"* ]]; then
-            print_color $GREEN "✓ Docker Compose v2 detected!"
-        else
-            print_color $YELLOW "⚠ Docker Compose version might not be v2"
-        fi
+        print_color $GREEN "✓ Docker Compose v2 detected!"
+    elif command_exists docker-compose; then
+        compose_version=$(docker-compose --version)
+        print_color $YELLOW "⚠ Found legacy docker-compose: $compose_version"
+        print_color $YELLOW "   The script requires Docker Compose v2 (docker compose command)."
     else
         print_color $RED "✗ Docker Compose not found"
         return 1
@@ -194,7 +206,7 @@ verify_installation() {
     if docker info >/dev/null 2>&1; then
         print_color $GREEN "✓ Docker daemon is running"
     else
-        print_color $RED "✗ Docker daemon is not running"
+        print_color $RED "✗ Docker daemon is not running. Try starting Rancher Desktop or Colima."
         return 1
     fi
     
