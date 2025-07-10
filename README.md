@@ -1,7 +1,7 @@
 # 🖐️ Hello Watsonx Orchestrate
 
 A minimal, fully-working **multi-agent demo** for the  
-[IBM watsonx-Orchestrate ADK](https://ibm.biz/wxo-adk-docs).
+[IBM watsonx-Orchestrate ADK](https://developer.watson-orchestrate.ibm.com).
 
 > **Agents included**
 > 1. `greeting_agent` – answers any greeting  
@@ -11,6 +11,15 @@ A minimal, fully-working **multi-agent demo** for the
 > 5. `add` tool – a registered Python function used by `calculator_agent`
 
 ---
+
+✅ Prerequisites
+Before you dive in, please ensure your environment meets the following requirements:
+
+1. Operating System: A UNIX-based operating system is required, such as macOS or a popular Linux distribution like Ubuntu.
+
+2. Container Environment: You'll need Docker or a compatible alternative like Colima installed and running. The development server operates within a container, making this a crucial component.
+
+3. IBM Cloud Account: An active IBM Cloud account is necessary to access the required watsonx services and resources.
 
 ## ✨ Quick start (5 commands)
 
@@ -22,8 +31,6 @@ bash install.sh                 # venv → pip install → start server → impo
 
 ````
 ![](assets/2025-07-10-13-49-22.png)
-
-
 
 Open the URL printed in the terminal and try:
 
@@ -92,4 +99,4 @@ Pull requests and issues welcome! Please run `pytest` and ensure CI passes befor
 
 ## 📝 License
 
-This repository is released under the MIT License (see `LICENSE`).
+This repository is released under the MIT License (see [LICENSE](LICENSE)).
