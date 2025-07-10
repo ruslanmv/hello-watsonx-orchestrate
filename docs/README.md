@@ -11,431 +11,503 @@ Welcome to the world of AI agents\! In this tutorial, you'll learn how to build 
 
 This "manager-worker" pattern is fundamental to creating sophisticated and reliable AI systems. Let's get started\!
 
-### **✅ Prerequisites**
+
+## Environment Configuration for watsonx Orchestrate Developer Edition
+
+There are different ways to configure the **Watsonx Orchestrate Developer Edition** depending on your account type and requirements. This guide will walk you through the correct procedures for each configuration option.
+
+### **Prerequisites**
 
 Before you begin, make sure you have the following:
 
-1.  **Python 3.8+**: Ensure Python and `pip` are installed and accessible from your command line.
+1.  **Python 3.11+**: Ensure Python and `pip` are installed and accessible from your command line.
 2.  **Docker**: The ADK development server runs in a Docker container, so you must have Docker Desktop or another container environment (like Colima) installed and running.
-3.  **IBM Cloud Account (Optional)**: While the local server runs with offline "stub" models, connecting to `watsonx.ai` gives you access to powerful LLMs like Llama 3. If you choose to connect, you'll need a project and an API key.
+3.  **IBM Cloud Account** 
 
 -----
 
-### **🛠️ Step 1: Project Setup**
+### **Step 1: Project Setup**
 
 To make things easier, all the code for this tutorial is ready for you. Let's clone the repository and set up a clean Python environment.
 
-1.  **Clone the Project Files**
+## **Clone the Project Files**
     Open your terminal and run the following command to download all the necessary YAML and Python files.
 
-    ```bash
-    # This is a placeholder URL for the example.
-    git clone https://github.com/example/hello-watsonx-orchestrate.git
-    cd hello-watsonx-orchestrate
-    ```
+```bash
+git clone https://github.com/ruslanmv/hello-watsonx-orchestrate.git
 
-2.  **Create and Activate a Virtual Environment**
-    A virtual environment keeps your project's dependencies isolated.
+```
+we change the directory to
+```bash
+cd hello-watsonx-orchestrate
+```
+## Create virtual environment
 
-    *On macOS / Linux:*
+Before configuring watsonx Orchestrate, ensure you have:
+Python Virtual Environment Setup.
+First, create and activate a Python virtual environment:
 
-    ```bash
-    python3.11 -m venv venv
-    source venv/bin/activate
-    ```
+```bash
+python -m venv venv
+```
+### Activate the virtual environment
 
-    *On Windows (Command Prompt):*
-
-    ```bash
-    python -m venv venv
-    venv\Scripts\activate.bat
-    ```
-
-
-
-#Variable ENviroments
-
-
-There are different ways to configure the .env file for watsonx Orchestrate Developer Edition and clarify the credential requirements.
-
-
-.env File Configuration Options
-There are three main ways to configure your .env file for the local watsonx Orchestrate Developer Edition:
-
-Option 1: Using watsonx.ai Account (Recommended for Local Development)
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=myibm
-WO_ENTITLEMENT_KEY=<your_entitlement_key_from_myibm>
-WO_DEVELOPER_EDITION_SKIP_LOGIN=false
-
-# watsonx.ai Configuration
-WATSONX_APIKEY=<your_watsonx_api_key>
-WATSONX_SPACE_ID=<your_space_id>
-WATSONX_URL=https://us-south.ml.cloud.ibm.com
-
-Option 2: Using watsonx Orchestrate Account (Version 1.5.0+)
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=orchestrate
-WO_INSTANCE=<your_service_instance_url>
-WO_API_KEY=<your_wxo_api_key>
-
-Option 3: Hybrid Approach (Fallback Method)
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=myibm
-WO_ENTITLEMENT_KEY=<your_entitlement_key>
-WO_INSTANCE=<your_service_instance_url>
-WO_API_KEY=<your_wxo_api_key>
-WO_DEVELOPER_EDITION_SKIP_LOGIN=false
-
-For Local Development (Your Use Case)
-Since you want to use the local version, I recommend Option 1 with watsonx.ai credentials:
-
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=myibm
-WO_ENTITLEMENT_KEY=<get_from_myibm.ibm.com>
-WO_DEVELOPER_EDITION_SKIP_LOGIN=false
-
-# watsonx.ai Configuration  
-WATSONX_APIKEY=<your_watsonx_api_key>
-WATSONX_SPACE_ID=<your_space_id>
-WATSONX_URL=https://us-south.ml.cloud.ibm.com
-
-Can You Use Another User's Credentials?
-Yes, you can use different credentials, but with considerations:
-watsonx.ai Credentials: You can use any valid watsonx.ai account - it doesn't have to be the same as your watsonx Orchestrate account. The watsonx.ai credentials are used for:
-
-Pulling Docker images for the Developer Edition
-Accessing LLM models (if you use watsonx/* models)
-Entitlement Key: You can use any valid IBM entitlement key that has access to watsonx products
-
-Important Notes:
-
-Legal/Licensing: Make sure you have proper licensing rights to use the credentials
-Access Control: The person whose credentials you use needs appropriate access to watsonx.ai services
-Cost: Usage will be billed to the account whose credentials you use
-How to Get the Required Values
-For WO_ENTITLEMENT_KEY:
-Go to My IBM
-Click View Library
-Click Add a new key +
-Copy the entitlement key
-For WATSONX_APIKEY and WATSONX_SPACE_ID:
-Go to IBM Cloud watsonx.ai
-Create a watsonx.ai instance (if you don't have one)
-Get your API key from IBM Cloud (Account → Manage → Access (IAM) → API keys)
-Get your Space ID from the Developer access page
-Complete .env File Example for Local Development:
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=myibm
-WO_ENTITLEMENT_KEY=eylkjlkjsdlkjIsInR5cCI6IkpXVCJ9...
-WO_DEVELOPER_EDITION_SKIP_LOGIN=false
-
-# watsonx.ai Configuration
-WATSONX_APIKEY=your-ibm-cloud-api-key-here
-WATSONX_SPACE_ID=12345678-1234-1234-1234-123456789abc
-WATSONX_URL=https://us-south.ml.cloud.ibm.com
-
-Starting the Server:
-orchestrate server start --env-file=.env
-
-Key Points:
-For local development, you primarily need the WO_DEVELOPER_EDITION_* variables to pull and run the Docker images
-WATSONX_* variables are needed if you want to use watsonx/* LLM models in your agents
-You can use credentials from different IBM accounts as long as they have the necessary permissions
-WO_INSTANCE and WO_API_KEY are only needed if you plan to sync with a remote watsonx Orchestrate instance later
-Your current template is correct - just fill in the actual values based on the credentials you have access to.
-
-WATSONX_APIKEY requires WATSONX_SPACE_ID to be set. The combination of WATSONX_APIKEY with WATSONX_PROJECT_ID alone is not supported in this configuration.
-
-Step-by-Step Guide to Get Your WATSONX_SPACE_ID
-Step 1: Access IBM Cloud
-Go to [IBM Cloud](https://cloud.ibm.com/)
-Log in with your IBM Cloud credentials
-Step 2: Navigate to watsonx.ai
-From the IBM Cloud dashboard, search for "watsonx.ai" in the search bar
-Click on your watsonx.ai service instance
-Or directly go to the [Developer access page](https://dataplatform.cloud.ibm.com/developer-access?context=wx)
-Step 3: Find Your Space ID
-Option A: Through Developer Access Page
-
-Go to [Developer access](https://dataplatform.cloud.ibm.com/developer-access?context=wx) page on IBM Cloud
-Look for the "Space ID" section
-![](assets/2025-07-07-20-14-11.png)
-If you dont have space you can create a one.
-
-
-
-
-Step 2: Check Space Permissions
-In watsonx.ai, go to "Spaces"
-Find the space that you have created
-Click on the space to open it
-Go to "Manage" or "Access control" tab
-Check if your user/service ID has proper permissions
-Step 3: Add Permissions to the Space
-In the space's Access control section
-Click "Add collaborators" or "Manage access"
-Add your user account with "Admin" or "Editor" role
-If you are using for example TechZone you can
-Add access groups as collaborators
-Save the changes
-Step 4: Verify API Key Permissions
-Go to IBM Cloud IAM
-Find your API key (the one in your .env file)
-Click on it to view details
-Ensure it has the following permissions:
-Watson Machine Learning service access
-Watson Studio service access
-Resource group access where your watsonx.ai instance is located
-Step 5: Create a New Space (Alternative Solution)
-If you can't access the existing space, create a new one:
-
-In watsonx.ai, go to "Spaces"
-Click "Create a space"
-Give it a name (e.g., "My Development Space")
-Add a description
-Click "Create"
-Copy the new Space ID
-Step 6: Update Your .env File
-Update your .env file with the correct Space ID:
-
-
-
-Copy the Space ID value
-Option B: Through watsonx.ai Interface
-
-In your watsonx.ai instance, look for "Spaces" in the navigation
-Click on your existing space or create a new one
-The Space ID will be visible in the space details or URL
-Option C: Create a New Space (if you don't have one)
-
-In watsonx.ai, go to "Spaces"
-Click "Create a space"
-Give it a name and description
-Once created, note down the Space ID
-Step 4: Update Your .env File
-Replace your current configuration with:
-
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=myibm
-WO_ENTITLEMENT_KEY=
-WO_DEVELOPER_EDITION_SKIP_LOGIN=false
-
-# watsonx.ai Configuration
-WATSONX_APIKEY=
-WATSONX_SPACE_ID=<your_actual_space_id_here>
-WATSONX_URL=https://us-south.ml.cloud.ibm.com
-
-Remove the PROJECT_ID line entirely and replace <your_actual_space_id_here> with the actual Space ID you obtained.
-
-Step 5: Restart Your Environment
-Stop the current server:
-
-orchestrate server stop
-
-Start the server with your updated .env file:
-
-orchestrate server start --env-file=path/to/your/.env
-
-Activate the local environment:
-
-orchestrate env activate local
-
-Alternative: Use watsonx Orchestrate Credentials Instead
-If you continue having issues with watsonx.ai credentials, you can use your watsonx Orchestrate credentials instead (if you have a watsonx Orchestrate account):
-
-# watsonx Orchestrate Developer Edition Configuration
-WO_DEVELOPER_EDITION_SOURCE=orchestrate
-WO_INSTANCE=<your_service_instance_url>
-WO_API_KEY=<your_wxo_api_key>
-
-Why This Happens
-The watsonx Orchestrate Developer Edition requires either:
-
-watsonx.ai credentials: WATSONX_APIKEY + WATSONX_SPACE_ID
-watsonx Orchestrate credentials: WO_INSTANCE + WO_API_KEY
-The system doesn't support mixing WATSONX_APIKEY with PROJECT_ID because spaces and projects have different access patterns and permissions in watsonx.ai.
-
-
-Models Compatible with Function Calling
-Based on the watsonx Orchestrate ADK documentation, here are the models that support function calling (tools):
-
-IBM Granite Models (Recommended)
-watsonx/ibm/granite-3-8b-instruct
-watsonx/ibm/granite-3-2b-instruct
-watsonx/ibm/granite-3-8b-instruct (latest version)
-Meta Llama Models
-watsonx/meta-llama/llama-3-3-70b-instruct
-watsonx/meta-llama/llama-3-1-70b-instruct
-watsonx/meta-llama/llama-3-1-8b-instruct
-watsonx/meta-llama/llama-3-2-90b-vision-instruct
-Other Compatible Models
-watsonx/mistralai/mixtral-8x7b-instruct-v01
-watsonx/mistralai/mistral-large
-How to Check Available Models
-You can list all available models in your environment:
-
-
-### **⚙️ Step 2: Install and Configure the ADK**
+On Linux/macOS:
+```bash
+source venv/bin/activate  
+```
+On Windows:
+```bash
+venv\Scripts\activate     
+```
+## Watsonx Orchestrate ADK Installation
 
 Now, we'll install the IBM watsonx Orchestrate Agent Developer Kit (ADK) and start the local development server.
 
-1.  **Install the ADK**
+**Install the ADK**
     Use `pip` to install the core `orchestrate` library.
 
     ```bash
     pip install --upgrade ibm-watsonx-orchestrate==1.6.2
     ```
 
-2.  **Activate and Start the Local Server**
-    The ADK's local server runs in Docker and provides an offline environment for development.
+### File Configuration Options
 
-   Let's test the installation
+There are different ways to login [watson orchestratehere](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=orchestrate-logging-in-watsonx). In particular we are going to login via cli via Orchestrate Developer Edition.
 
-    ```bash
-   orchestrate --version
-    ```
-    ![](assets/2025-07-04-15-05-47.png)
+The watsonx Orchestrate Developer Edition can be configured using three main approaches. Choose the one that matches your setup:
 
+## Option 1: Using watsonx.ai Account (Recommended for Local Development)
 
-    In this demo we are going to use the the watsonx Orchestrate Developer Edition runs under a Docker container, and can’t be used to host a full working version of watsonx Orchestrate. 
-    The server runs under the host machine’s localhost, and can’t be used to provide remote access. 
+This option requires a watsonx.ai instance and an entitlement key from My IBM.
 
-    Deploying the watsonx Orchestrate Developer Edition in a virtual machine is also not supported.
+### Create .env file with watsonx.ai configuration
+```bash
+cat > .env << EOF
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=<your_entitlement_key_from_myibm>
+WATSONX_APIKEY=<your_watsonx_api_key>
+WATSONX_SPACE_ID=<your_space_id>
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+EOF
+```
+### Requirements:
 
+- Valid watsonx.ai instance on IBM Cloud
+- Entitlement key from My IBM
+- watsonx.ai API key and Space ID
 
+## Option 2: Using watsonx Orchestrate Account (Version 1.5.0+)
+This is the preferred method if you have a watsonx Orchestrate account.
 
-Install Docker and Docker Compose engine. It is containerization engine used to install the watsonx Orchestrate Developer Edition. For more information, see Docker and Docker compose.
+### Create .env file with watsonx Orchestrate configuration
 
+```bash
+cat > .env << EOF
+WO_DEVELOPER_EDITION_SOURCE=orchestrate
+WO_INSTANCE=<your_service_instance_url>
+WO_API_KEY=<your_wxo_api_key>
+EOF
+```
+### Requirements:
 
-For macOS users, use a container management software such as Rancher Desktop or Colima to use the Docker engine.
+- Active watsonx Orchestrate account
+- Service instance URL from your watsonx Orchestrate settings
+- API key generated from watsonx Orchestrate settings
 
+## Option 3: Hybrid Approach (Fallback Method)
+Use this if Option 2 doesn't work for pulling images.
 
-You must have access to at least one of these services:
+### Create .env file with hybrid configuration
+```bash
+cat > .env << EOF
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=<your_entitlement_key>
+WO_INSTANCE=<your_service_instance_url>
+WO_API_KEY=<your_wxo_api_key>
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+EOF
+```
 
-watsonx Orchestrate
-watsonx.ai
-You can use at least one of these services to get access to the watsonx Orchestrate Developer Edition images.
+## Getting Credentials for IBM Cloud watsonx Orchestrate (Option 2)
 
+Important: Don't use the credentials from the IBM Cloud resources page directly. Follow this specific procedure to get the correct credentials for Option 2 configuration:
 
+### Step 1: Access Your watsonx Orchestrate Instance
 
-Setup the environment
-The watsonx Orchestrate Developer Edition is distributed as a Docker image. In order to pull the images from Docker, you must configure an environment file with the appropriate data.
+Log in to your  [IBM Cloud Account](https://cloud.ibm.com/)
 
+Log in with your IBM Cloud credentials
 
-Getting an entitlement key for watsonx Orchestrate Developer Edition
-You can download the images if you have a valid instance of watsonx.ai. In order to do that, you must obtain an entitlement key to proceed. To get the entitlement key, follow these steps:
-
-Access My IBM.
-
-Click View Library.
-
-![](assets/2025-07-04-22-20-41.png)
-
-
-Click Add a new key +.
-
-![](assets/2025-07-04-22-21-51.png)
-Copy the entitlement key.
-![](assets/2025-07-04-22-22-26.png)
-
-
-
-Using your watsonx.ai account
-Create a watsonx.ai instance on IBM Cloud, if you do not have one already, and locate your space ID. You can create a new instance and get the space ID in the Developer access page on IBM Cloud.
-Go to this page
-[Developer access ](https://dataplatform.cloud.ibm.com/developer-access?context=wx)
-
-
-![](assets/2025-07-05-23-41-03.png)
-
-
-
-To get your API Key, see[Managing API Keys](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui).
-
-Create you personal API KEY
-[https://cloud.ibm.com/iam/apikeys](https://cloud.ibm.com/iam/apikeys)
-![](assets/2025-07-05-23-43-49.png)
-and copy it
-
-![](assets/2025-07-05-23-44-49.png)
-
-    Create a .env file with the following contents:
-    ```bash
-  WO_DEVELOPER_EDITION_SOURCE=myibm
-  WO_ENTITLEMENT_KEY=<my_entitlement_key>
-  WATSONX_APIKEY=<my_watsonx_api_key>
-  WATSONX_SPACE_ID=<my_space_id>
-  WO_DEVELOPER_EDITION_SKIP_LOGIN=false
-    ```
-
-    ```bash
-    # Point the CLI to your local environment
-    orchestrate env activate local
-
-    # Start the server and accept the license
-    orchestrate server start --accept-license
-    ```
-
-    **Important**: Keep this terminal window open\! The server must be running for your agents to work. If you accidentally close it, simply run the `orchestrate server start --accept-license` command again in a new terminal.
-
-
-If you want get an online watsonx orchestrate you can try the trial
-Trial access on IBM Cloud.
-IBM Cloud
-
-To initiate the trial access on IBM Cloud:
-
-[Log in](https://cloud.ibm.com/login) to your IBM Cloud account.
 If you don't have an account, create an [IBM Cloud account](https://cloud.ibm.com/registration). Complete the registration form, and click Create account.
-Navigate to the [watsonx Orchestrate catalog](https://cloud.ibm.com/catalog/services/watsonx-orchestrate?catalog_query=aHR0cHM6Ly9jbG91ZC5pYm0uY29tL2NhdGFsb2cjYWxsX3Byb2R1Y3Rz) page on IBM Cloud.
-On the plan catalog page, select Trial plan and choose your data center location from the Select a location drop-down.
-![](assets/2025-07-05-23-59-53.png)
+Go to your [Resources list](https://cloud.ibm.com/resources)
 
+Navigate to the [watsonx Orchestrate catalog](https://cloud.ibm.com/catalog/services/watsonx-orchestrate?) page on IBM Cloud.
+
+
+On the plan catalog page, select Trial plan and choose your data center location from the Select a location drop-down.
+
+![](assets/2025-07-05-23-59-53.png)
 
 The Service name is pre-filled, you can modify it if needed.
 The resource group is set to Default.
+
 Accept the license agreement and click Create to provision a watsonx Orchestrate instance on IBM Cloud. The services page is displayed.
+
 Click Launch watsonx Orchestrate to access the service page and start using the service.
+
 ![](assets/2025-07-06-00-00-40.png)
 
+Navigate to Resource list
+Find your watsonx Orchestrate product under the AI/Machine Learning resource category
 
-https://us-south.watson-orchestrate.cloud.ibm.com/chat
-
-![](assets/2025-07-06-00-02-32.png)
-
-
+![](assets/2025-07-09-12-50-28.png)
 
 
- There are different ways to use watson orchestrate, more information [here](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=orchestrate-logging-in-watsonx)
+Click on your watsonx Orchestrate instance
 
- Using your watsonx Orchestrate account
-Starting at version 1.5.0, you can now use your watsonx Orchestrate account to pull images from Docker, and you no longer need an entitlement key to pull the images.
+![](assets/2025-07-09-13-41-25.png)
 
-[Log in](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/current?topic=orchestrate-logging-in-watsonx) to your watsonx Orchestrate account.
+Click Launch watsonx Orchestrate
 
-Click your user profile and open the Settings page.
+![](assets/2025-07-09-10-31-47.png)
 
-Open the API details tab and click Generate API key.
-![](assets/2025-07-06-00-07-01.png)
+## Step 2: Access API Settings
+Once you're logged into your watsonx Orchestrate instance:
+
+Click your user icon on the top right Click Settings
+
+![](assets/2025-07-09-13-45-35.png)
+
+Go to the API details tab
+
+## Step 3: Get Service Instance URL (WO_INSTANCE)
+
+Copy the service instance URL from the API details tab. This will be in the format:
+
+https://api.<region>.watson-orchestrate.ibm.com/instances/<wxo_instance_id>
+
+Save this value for the WO_INSTANCE variable in your .env file.
+
+![](assets/2025-07-09-13-47-44.png)
+
+## Step 4: Generate API Key (WO_API_KEY)
+
+Click the Generate API key button
+
+This redirects you to the IBM Cloud Identity Access Management center
+
+Important: Verify that you are in the correct Account where you have access to watsonx Orchestrate
+
+![](assets/2025-07-09-13-50-52.png)
+
+Click Create to create a new API Key
+
+Enter a name and description for your API Key
+
+![](assets/2025-07-09-13-55-36.png)
+
+Copy the API key and store it securely - this will be your WO_API_KEY value
+
+## Step 5: Set WO_DEVELOPER_EDITION_SOURCE
+
+For Option 2, set WO_DEVELOPER_EDITION_SOURCE=orchestrate
+
+Important Notes:
+
+API keys are not retrievable and can't be edited or deleted
+Store your API key in a safe location immediately after generation
+You're limited to 10 API keys in this environment
+
+## Getting Credentials for IBM Cloud using watsonx.ai Account (Option 1)
+
+Follow these steps to obtain all the required credentials for Option 1 configuration:
+
+### Step 1: Get Entitlement Key from My IBM (WO_ENTITLEMENT_KEY)
+
+Access [My IBM](https://myibm.ibm.com/)
+
+Click View Library
+
+![](assets/2025-07-04-22-20-41.png)
+
+Click Add a new key +
+
+![](assets/2025-07-04-22-21-51.png)
+
+Copy the entitlement key - this will be your 
+
+WO_ENTITLEMENT_KEY value
+
+![](assets/2025-07-04-22-22-26.png)
+
+## Step 2: Create watsonx.ai Instance and Get Space ID (WATSONX_SPACE_ID)
+Create a watsonx.ai instance on IBM Cloud (if you don't have one already)
 
 
+Go to your [watsonx instance](https://dataplatform.cloud.ibm.com/wx/home?context=wx)
+
+![](assets/2025-07-09-18-21-35.png)
+
+Scrow down and click [Create a new deployment space](https://
+dataplatform.cloud.ibm.com/ml-runtime/spaces/create-space?context=wx)
+
+![](assets/2025-07-09-18-22-05.png)
+
+here we give an orignal name for example 
+
+`watsonx-ochestrate-1` 
+
+for exmaple,
+
+![](assets/2025-07-09-18-24-37.png)
+
+for this demo we will use Deployment stage `Development`
+
+and we choose watsonx.ai Runtime appropiate.
+
+and we create it.
+![](assets/2025-07-09-18-27-13.png)
+
+Go to the Developer access page on IBM Cloud
+
+Go to this page
+
+[Developer access ](https://dataplatform.cloud.ibm.com/developer-access?context=wx)
+
+![](assets/2025-07-05-23-41-03.png)
+
+Locate your space ID - this will be your WATSONX_SPACE_ID value
+You can also create a new space if needed from this page
 
 
-Installing the watsonx Orchestrate Developer Edition with ADK
+## Step 3: Get watsonx.ai API Key (WATSONX_APIKEY)
 
-To install the watsonx Orchestrate Developer Edition with the ADK, run the following command in the CLI:
+In your IBM Cloud account, go to Manage → Access (IAM)
+
+Click on API keys in the left sidebar
+
+Click Create an IBM Cloud API key
+
+
+[https://cloud.ibm.com/iam/apikeys](https://cloud.ibm.com/iam/apikeys)
+
+![](assets/2025-07-09-18-30-08.png)
+
+Enter a name and description for your API key
+
+Click Create
+
+Copy the API key immediately - this will be your 
+
+WATSONX_APIKEY value
+
+Store it securely as it cannot be retrieved later
+
+Alternative method for API key:
+
+Go to Managing API Keys
+
+Follow the IBM Cloud documentation to create your API key
+
+## Step 4: Set Additional Variables
+
+We add to additional variables
 
 ```bash
-orchestrate server start --env-file={{The path of your .env file}}
+WO_DEVELOPER_EDITION_SOURCE=myibm
 ```
 
-for example
+```bash
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false 
+```
 
-orchestrate server start --env-file=/mnt/c/blog/hello-watsonx-agents/.env
------
+(you can set this to true to skip ICR login if you already have the images)
 
-### **🤖 Step 3: Create and Validate Your Agents**
+So complete Option 1 .env file example:
+
+```bash
+cat > .env << EOF
+WO_DEVELOPER_EDITION_SOURCE=myibm
+WO_ENTITLEMENT_KEY=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+WATSONX_APIKEY=your-ibm-cloud-api-key-here
+WATSONX_SPACE_ID=12345678-1234-1234-1234-123456789abc
+WO_DEVELOPER_EDITION_SKIP_LOGIN=false
+EOF
+```
+
+Important Notes for Option 1:
+
+The entitlement key is a JWT token that will be quite long
+The Space ID is a UUID format identifier
+The API key is your IBM Cloud API key, not a watsonx Orchestrate specific key
+
+Make sure your IBM Cloud API key has access to the watsonx.ai service and the specified space
+Starting the Developer Edition
+Once your .env file is configured and your Python virtual environment is active:
+
+### Ensure Python virtual environment is active
+```bash
+source venv/bin/activate
+```
+
+### Start the watsonx Orchestrate Developer Edition
+```bash
+orchestrate server start --env-file=.env
+```
+
+![](assets/2025-07-10-07-53-50.png)
+
+## Environment Management
+
+
+### Activate local environment
+After starting the server, activate the local environment:
+```bash
+orchestrate env activate local
+```
+![](assets/2025-07-10-07-54-58.png)
+### Environment Management Commands
+List Available Environments:
+
+```bash
+orchestrate env list
+```
+
+Example output:
+
+```bash
+local                      http://localhost:4321                                                 (active)
+```
+
+Just like information if we want ran the remote environment from the cloud you can choose one of the follwoing options
+
+## Add Remote Environment (optional):
+### For IBM Cloud
+For the case of IBM cloud  you can type
+
+```bash
+orchestrate env add -n my-ibm-cloud-env -u https://your-service-instance-url --type ibm_iam --activate
+```
+and if you want to see 
+
+```bash
+orchestrate env list
+```
+Example output:
+
+```bash
+my-ibm-cloud-env          https://api.watson-orchestrate.cloud.ibm.com/instances/<instance-id>
+```
+
+### For AWS
+
+And similar for aws
+
+```bash
+orchestrate env add -n my-aws-env -u https://your-service-instance-url --type mcsp --activate
+
+```bash
+orchestrate env list
+```
+
+Example output:
+
+```bash
+my-aws-env                https://api.watson-orchestrate.ibm.com/instances/<instance-id>
+```
+
+### Switch Between Environments:
+
+### Switch to local development environment
+
+```bash
+orchestrate env activate local
+```
+
+### Switch to remote production environment
+
+```bash
+orchestrate env activate my-ibm-cloud-env
+```
+## Authentication for Remote Environments:
+
+Authenticate against remote environment (expires every 2 hours)
+
+```bash
+orchestrate env activate my-ibm-cloud-env --api-key your-api-key
+```
+
+Or authenticate interactively
+
+```bash
+orchestrate env activate my-ibm-cloud-env
+```
+You'll be prompted: Please enter WXO API key:
+
+## Working with Agents and Tools
+Once your environment is set up and activated, you can work with agents and tools:
+
+### Import tools
+```bash
+orchestrate tools import -k python -f tools/calculator_tool.py
+```
+### Import agents
+
+```bash
+orchestrate agents import -f agents/greeter.yaml
+```
+
+### List imported agents and tools
+
+```bash
+orchestrate agents list
+orchestrate tools list
+```
+
+### Start the chat UI
+
+```bash
+orchestrate chat start
+```
+
+The chat UI will be available at: http://localhost:3000/chat-lite
+
+Complete Workflow Example
+Here's a complete workflow from setup to running:
+
+```bash
+# 1. Activate Python virtual environment
+source venv/bin/activate
+
+# 2. Verify ADK installation
+orchestrate --version
+
+# 3. Create .env file with your credentials (choose one option from above)
+cat > .env << EOF
+WO_DEVELOPER_EDITION_SOURCE=orchestrate
+WO_INSTANCE=https://api.us-south.watson-orchestrate.cloud.ibm.com/instances/your-instance-id
+WO_API_KEY=your-api-key
+EOF
+
+# 4. Start Developer Edition
+orchestrate server start --env-file=.env
+
+# 5. In another terminal, activate Python environment and local watsonx environment
+source venv/bin/activate
+orchestrate env activate local
+
+# 6. Now you can work with agents and tools
+orchestrate agents list
+orchestrate tools list
+
+# 7. Start chat UI
+orchestrate chat start
+```
+
+
+
+### Create and Validate Your Agents
 
 The project you cloned contains all the agent definitions. Let's review them and learn how to validate them before use.
 
@@ -446,15 +518,22 @@ A best practice is to run `orchestrate validate -f <your-file.yaml>` before impo
 This agent's only job is to respond to greetings. Note the instructions are written to be case-insensitive.
 
 ```yaml
-# greeting_agent.yaml
 spec_version: v1
 kind: native
 name: greeting_agent
-description: A friendly agent that handles greetings.
-llm: watsonx/meta-llama/llama-3-8b-instruct
+description: A friendly agent that handles greetings only.
+style: react
+llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
 instructions: |
-  If the user's message contains the word "hello" (case-insensitive), you MUST respond with: "Hello! I am the Greeting Agent."
+  You are the Greeting Agent.
+  • If the user's message contains the word **“hello”** (case-insensitive),
+    respond with exactly:  
+      **Hello! I am the Greeting Agent.**
+  • For every other input, say:  
+      **I only handle greetings. Please say "hello".**
 tools: []
+
+
 ```
 
 *Validate it:* `orchestrate validate -f greeting_agent.yaml`
@@ -468,15 +547,20 @@ This agent echoes any input back, using the correct `{input}` placeholder for th
 spec_version: v1
 kind: native
 name: echo_agent
-description: An agent that echoes back the user's message.
-llm: watsonx/meta-llama/llama-3-8b-instruct
+description: An agent that echoes the user’s input back verbatim.
+style: react
+llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
 instructions: |
-  Your task is to repeat the user's exact input back to them.
-  You MUST respond with the format: "The Echo Agent heard you say: {input}"
+  You are the Echo Agent.
+  Always repeat the user's exact input.
+  Format your reply as:  
+    **The Echo Agent heard you say: {input}**
 tools: []
+
 ```
 
 *Validate it:* `orchestrate validate -f echo_agent.yaml`
+
 
 #### **The Collaborator Pattern**
 
@@ -494,11 +578,11 @@ The Orchestrator Agent will manage our other agents. It uses the `collaborators`
           │                                  │ Greeting Agent │
           │                                  └────────────────┘
           │
-          ├─► If message is math... ────────► ┌──────────────────┐
+          ├─► If message is math... ───────► ┌──────────────────┐
           │                                  │ Calculator Agent │
           │                                  └──────────────────┘
           │
-          └─► Otherwise... ─────────────────► ┌──────────────┐
+          └─► Otherwise... ────────────────► ┌──────────────┐
                                              │  Echo Agent  │
                                              └──────────────┘
 ```
@@ -514,24 +598,27 @@ kind: native
 name: orchestrator_agent
 description: Routes user requests to the appropriate specialist agent.
 style: react
-llm: watsonx/ibm/granite-13b-instruct-v2
+llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
 collaborators:
-  - "greeting_agent"
-  - "calculator_agent" 
-  - "echo_agent"
+  - greeting_agent
+  - calculator_agent
+  - echo_agent
 instructions: |
   You are the Orchestrator Agent. Delegate as follows:
 
   1. If the user's message contains the word "hello" (case-insensitive),
-     delegate to greeting_agent and return their exact response.
+     delegate to **greeting_agent**.
 
-  2. Else if the message appears to ask for an addition or uses keywords
-     like "add", "plus", "sum", or contains a pattern "<number> + <number>",
-     delegate to calculator_agent and return their exact response.
+  2. Else if the message appears to ask for mathematical operations like:
+     - Addition: "add", "plus", "sum", "+", "5 + 3"
+     - Subtraction: "subtract", "minus", "-", "10 - 5"  
+     - Multiplication: "multiply", "times", "*", "4 * 6"
+     - Division: "divide", "/", "20 / 4"
+     delegate to **calculator_agent**.
 
-  3. Otherwise, delegate to echo_agent and return their exact response.
+  3. Otherwise, delegate to **echo_agent**.
 
-  Always delegate to a collaborator. Do not answer directly yourself.
+  Do not answer directly yourself. Always delegate to the appropriate collaborator and return their exact response.
 tools: []
 ```
 
@@ -539,7 +626,7 @@ tools: []
 
 -----
 
-### **🦸 Step 4: The "Hero" Leap - Empowering Agents with Python Tools**
+### **The "Hero" Leap - Empowering Agents with Python Tools**
 
 Agents that only talk are useful, but agents that *do things* are powerful. Here’s how we create our `calculator_agent`. **Order is critical**: we must create and import the tool *before* the agent that uses it.
 
@@ -598,7 +685,7 @@ def divide(a: float, b: float) -> float:
     return a / b
 ```
 
-#### **4.2: Create the Calculator Agent (`calculator_agent.yaml`)**
+#### **Create the Calculator Agent (`calculator_agent.yaml`)**
 
 This agent is explicitly designed to use our new `add` tool.
 
@@ -606,25 +693,38 @@ This agent is explicitly designed to use our new `add` tool.
 spec_version: v1
 kind: native
 name: calculator_agent
-description: Performs addition by calling the `add` tool.
+description: Performs mathematical calculations including addition, subtraction, multiplication, and division.
 style: react
-llm: watsonx/ibm/granite-13b-instruct-v2
+llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
 instructions: |
-  You are a calculator.
-  • When asked to add or sum two numbers, you MUST call the `add` tool.
-  • Do **not** compute the result yourself.
-  • After the tool returns, forward its result to the user unchanged.
+  You are a calculator agent that can perform basic mathematical operations.
+  
+  • When asked to add or sum numbers, call the `add` tool
+  • When asked to subtract numbers, call the `subtract` tool  
+  • When asked to multiply numbers, call the `multiply` tool
+  • When asked to divide numbers, call the `divide` tool
+  
+  Always use the appropriate tool for the mathematical operation requested.
+  Do NOT compute results yourself - always use the tools.
+  After the tool returns a result, present it clearly to the user.
+  
+  Handle these types of requests:
+  - "add 5 and 3" or "5 + 3" → use add tool
+  - "subtract 10 from 15" or "15 - 10" → use subtract tool
+  - "multiply 4 by 6" or "4 * 6" → use multiply tool
+  - "divide 20 by 4" or "20 / 4" → use divide tool
 tools:
-  - add        # defined in tools/calculator_tool.py
-
-
+  - add
+  - subtract
+  - multiply
+  - divide
 ```
 
 *Validate it:* `orchestrate validate -f calculator_agent.yaml`
 
 -----
 
-### **▶️ Step 5: Import and Test Your Multi-Agent System**
+### **Import and Test Your Multi-Agent System**
 
 With all our files defined and validated, let's import them into Orchestrate and start chatting.
 
@@ -645,24 +745,25 @@ orchestrate agents import -f agents/greeting_agent.yaml
 orchestrate agents import -f agents/calculator_agent.yaml  
 orchestrate agents import -f agents/echo_agent.yaml
   ```
-   ```bash    
+```bash    
 # Finally import the orchestrator
 orchestrate agents import -f agents/orchestrator_agent.yaml
-    ```
+```
 
 4.  **Start the Chat\!**
+
     This command launches the chat UI. We point it to our `orchestrator_agent`, which will be the entry point. Note the plural `--agents` flag.
 
-    ```bash
-    orchestrate chat start --agents orchestrator_agent
-    ```
+```bash
+orchestrate chat start --agents orchestrator_agent
+```
 
 
 4. Check Agent Status
 Verify your agents were imported correctly:
-
+```bash
 orchestrate agents list
-
+```
 5. Try Different Agent Styles
 If the issue persists, try changing the style from react to default in your agent configurations, as mentioned in the known issues documentation.
 
@@ -673,11 +774,7 @@ Test with "hello" to see if greeting_agent responds
 Test with "add 2 and 3" to see if calculator_agent responds
 The most likely cause is the first interaction failure issue. Try waiting a few minutes after startup and then retry your messages. If that doesn't work, check your agent configurations and import order as described above.
 
-Known issues and limitations
-Managing watsonx Orchestrate Developer Edition
-Creating Agents
-can you explain how can test each single agent and and which llm is aviable to use , does this is correct ? llm: watsonx/meta-llama/llama-3-8b-instruct
-I'll help you understand how to test individual agents and what LLMs are available. Let me search for information about testing agents and available LLM models.
+
 
 
 Searched test individual agents chat interface agent selection available LLM models watsonx
@@ -726,8 +823,6 @@ Select calculator_agent in the chat interface
 Type: "add 5 and 3"
 Expected response: The agent should call the add tool and return the result
 ![](assets/2025-07-07-22-32-28.png)
-
-
 
 Test the Echo Agent:
 
