@@ -1,5 +1,3 @@
-Of course, here is the text converted to Markdown format.
-
 # watsonx Orchestrate Developer Edition Troubleshooting Guide
 
 This document provides solutions to common issues encountered when working with watsonx Orchestrate Developer Edition.
