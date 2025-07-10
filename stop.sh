@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 # -----------------------------------------------------------------------------
 # stop_all_containers.sh
 #
