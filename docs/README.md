@@ -849,127 +849,95 @@ Available LLM Models
 Your LLM Configuration is Correct
 Yes, llm: watsonx/meta-llama/llama-3-8b-instruct is a correct and valid LLM specification.
 
-Available LLM Providers and Models
-Based on the documentation, watsonx Orchestrate ADK supports these providers:
 
-Provider	Provider ID	Example Models
-watsonx.ai	watsonx	watsonx/meta-llama/llama-3-8b-instruct<br>watsonx/meta-llama/llama-3-2-90b-vision-instruct<br>watsonx/ibm/granite-3-8b-instruct
-OpenAI	openai	openai/gpt-4<br>openai/gpt-3.5-turbo
-Anthropic	anthropic	anthropic/claude-3-sonnet
-Google	google	google/gemini-2.0-flash
-Mistral	mistral-ai	mistral-ai/mistral-large
-OpenRouter	openrouter	Various models via OpenRouter
-Ollama	ollama	Local models via Ollama
-Common watsonx Models You Can Use
-From the examples in the documentation, these are valid watsonx models:
 
-# Your current model (correct)
-llm: watsonx/meta-llama/llama-3-8b-instruct
 
-# Other available watsonx models
-llm: watsonx/meta-llama/llama-3-2-90b-vision-instruct
-llm: watsonx/meta-llama/llama-3-1-70b-instruct  
-llm: watsonx/meta-llama/llama-3-3-70b-instruct
-llm: watsonx/ibm/granite-3-8b-instruct
+## Choosing the Right "Brain": A World of LLM Possibilities
 
-How to Check Available Models
-You can list all available models in your environment:
+We've successfully tested our agents, and they work beautifully. But what gives them their spark? The answer is the **Large Language Model (LLM)**, the "brain" behind each agent's reasoning. One of the greatest strengths of the watsonx Orchestrate ADK is its flexibility. You are not locked into a single provider; you are given the keys to a whole universe of AI models.
 
-# List all available LLM models
+At the core, you have seamless integration with **watsonx.ai**, giving you access to powerful, enterprise-ready models like the **Llama 3 series** and IBM's own high-performance **Granite** models. The `llm: watsonx/meta-llama/llama-3-8b-instruct` we used is just one of many excellent choices.
+
+But the journey doesn't end there. The ADK opens the door to a host of other industry giants. Want to experiment with **OpenAI's GPT-4**? Or perhaps **Anthropic's Claude** models? Maybe **Google's Gemini** or a specialized model from **Mistral**? It's as simple as adding the provider and your credentials. For those who love local control and experimentation, the ADK even supports models running locally via **Ollama**.
+
+You can see the full roster of available models in your own environment at any time. Just open your terminal and run:
+
+```bash
+# See all available models
 orchestrate models list
+```
 
-# List with raw output for more details
-orchestrate models list --raw
-
-How to Add Custom Models
-If you need to add additional models:
-
-# Add a custom watsonx model
-orchestrate models add --name watsonx/meta-llama/llama-3-2-90b-vision-instruct --app-id your_credentials
-
-# Add models from other providers (requires API keys)
-orchestrate models add --name openai/gpt-4 --app-id openai_creds
-
-Recommended Testing Approach
-Start with individual agents first:
-
-orchestrate chat start
-
-Test each agent separately before testing the orchestrator
-
-Use the correct LLM (your current one is fine):
-
-llm: watsonx/meta-llama/llama-3-8b-instruct
-
-If agents don't respond, try:
-
-Wait 2-3 minutes after startup
-Try a different LLM model
-Change agent style from react to default
-Your LLM configuration is correct, and you should be able to test individual agents by selecting them in the chat interface at http://localhost:3000/chat-lite.
-
-Managing custom LLMs
-Creating evaluation dataset
-Importing Agents
-
-
-
-#### **Testing Scenarios**
-
-Open the chat URL provided in your terminal and try these prompts:
-
-  * **Input:** `hello there`
-
-      * **Expected Output:** `Hello! I am the Greeting Agent.`
-      * **Why?** The orchestrator detected "hello" and delegated to the `greeting_agent`.
-
-  * **Input:** `what is 11 plus 54?`
-
-      * **Expected Output:** `The result of 11 + 54 is 65.`
-      * **Why?** The orchestrator detected a math query and delegated to the `calculator_agent`, which then executed the Python `add` tool.
-
-  * **Input:** `This is a test.`
-
-      * **Expected Output:** `The Echo Agent heard you say: This is a test.`
-      * **Why?** The input didn't match the rules for greeting or math, so the orchestrator used its fallback rule and delegated to the `echo_agent`.
-
-**Congratulations\!** You have successfully built and tested a smart, tool-enabled multi-agent system. 🎉
+This command empowers you to choose the perfect intelligence for any task, ensuring your agents are not just functional, but truly smart.
 
 -----
 
-### **🧹 Step 6: Cleaning Up Your Environment**
+## The Final Performance: Putting Your Multi-Agent System to the Test
 
-When you're finished, you can remove the assets you've created and stop the server.
+It's time for the moment of truth. With our agents built and our server running, let's open the chat interface at `http://localhost:3000/chat-lite` and witness our creation in action.
+
+First, a simple greeting. Type in **`hello there`**.
+Instantly, you'll see the Orchestrator Agent spring to life. It recognizes the intent, and instead of answering itself, it passes the baton to the specialist. The `greeting_agent` takes over and delivers its perfectly crafted line: `Hello! I am the Greeting Agent.`
+
+Now for something more challenging. Let's test its tool-using capability with **`what is 11 plus 54?`**.
+Watch closely. The Orchestrator understands this isn't a greeting; it's a request for calculation. It awakens the `calculator_agent`, which in turn knows it needs to call the `add` function from our Python tool. The tool does the heavy lifting, and the agent presents the final, correct answer.
+
+Finally, let's give it a query that fits no specific category, like **`This is a test`**.
+The Orchestrator, seeing no match for greetings or math, wisely defaults to its fallback plan. It delegates the task to the `echo_agent`, which dutifully reports back: `The Echo Agent heard you say: This is a test.`
+
+**Congratulations\!** You have successfully built, orchestrated, and validated a smart, tool-enabled, multi-agent system. 🎉
+
+-----
+
+### 🧹 The Responsible Hero: Cleaning Up Your Workspace
+
+A true professional knows that cleaning up is just as important as building. When you're finished experimenting, it's good practice to remove the assets you've created to keep your environment tidy.
+
+You can do this with a few simple commands. From a terminal with your virtual environment active, run the following to dismantle your system piece by piece:
 
 ```bash
-# Delete the agents
+# It's best practice to delete agents first
 orchestrate agents delete orchestrator_agent
 orchestrate agents delete calculator_agent
 orchestrate agents delete greeting_agent
 orchestrate agents delete echo_agent
 
-# Delete the tool
+# Then, delete the tool the agents relied on
 orchestrate tools delete add
 
-# Stop the local development server (from the server's terminal)
-# Press Ctrl+C, then run:
+# Finally, in the terminal where the server is running,
+# press Ctrl+C and then run the stop command:
 orchestrate server stop
 ```
 
-### **🤔 Troubleshooting Cheat-Sheet**
+-----
 
-| Error Message | Common Cause | Solution |
-| :--- | :--- | :--- |
-| `Error: no such option: --api-key` | Using an old, invalid flag with `orchestrate server start`. | Use `orchestrate server start --accept-license` instead. |
-| `Error: Agent 'X' not found` | The agent was not imported, or its name is misspelled in a `collaborators` list. | Ensure all agents are imported successfully before starting the chat. Check for typos. |
-| `Error: Tool 'Y' for agent 'X' not found` | The agent was imported before its tool, or the tool import failed. | Always import tools *before* the agents that use them. |
-| `Address already in use` or `Port is already allocated` | The ADK server (or another process) is already running and using port 8080 or 8443. | Stop the existing server with `orchestrate server stop` before starting a new one. |
+### 🤔 When Heroes Stumble: A Troubleshooting Guide
 
-### **🎓 Next Steps & Best Practices**
+Even the best developers run into a few snags. If your system isn't behaving as expected, don't worry. Here are solutions to some common challenges:
 
-You've mastered the basics\! Now you're ready to become a true hero.
+  * **Getting an `Agent not found` error?**
+    This usually means there's a typo in your `orchestrator_agent.yaml`'s `collaborators` list, or you forgot to import one of the agents. Double-check your spelling and run `orchestrate agents list` to ensure everyone is present.
 
-  * **Explore Knowledge Bases**: Teach agents by giving them documents to read. They can answer questions based on PDFs, Word docs, and more.
-  * **Build with Flow Builder**: For complex, multi-step tasks, use the Flow Builder to chain tools and logic together in a visual way.
-  * **Write Unit Tests**: The ADK includes a Python SDK that lets you write tests for your agents' behavior, perfect for CI/CD pipelines.
-  * **Read the Docs**: For a deep dive into all features, check out the **[Official watsonx Orchestrate ADK Documentation](https://ibm.biz/wxo-adk-docs)**.
+  * **Seeing a `Tool for agent not found` error?**
+    This is almost always an import order issue. Remember the golden rule: **tools must be imported *before* the agents that use them.** Delete the agent, re-import your tool, and then import the agent again.
+
+  * **The server fails with `Address already in use`?**
+    This classic error simply means another process (likely a previous server instance) is already using a required port. Stop the old server with `orchestrate server stop` before starting a new one.
+
+-----
+
+### 🎓 Your Journey is Just Beginning
+
+From a simple idea to a collaborating team of specialized AI agents, you've gone from zero to hero. You've learned the fundamentals of building with watsonx Orchestrate, but your adventure is far from over. You now have a powerful foundation to build upon. Here are the new quests you can embark on:
+
+  * **Grant Your Agents Vast Knowledge:** Move beyond simple instructions. With **Knowledge Bases**, you can feed your agents PDFs, documents, and web content, allowing them to answer complex questions based on a rich set of information.
+
+  * **Master Complex Tasks with the Flow Builder:** For workflows that require multiple, sequential steps, the **Flow Builder** is your visual spellbook. Chain tools and logic together to create sophisticated automations without writing extensive code.
+
+  * **Forge an Unbreakable System with Unit Tests:** For production-grade reliability, the ADK includes a Python SDK that lets you write **unit tests** for your agents' behavior. This is perfect for integrating your agent development into a professional CI/CD pipeline.
+
+### **Conclusion**
+
+Today, you didn't just build a simple AI; you learned how to **orchestrate intelligence**. You created a system where different agents, each with a unique skill, collaborate under the direction of a manager to solve problems more effectively than a single agent ever could. This "manager-worker" pattern is a cornerstone of creating scalable, reliable, and powerful AI solutions.
+
+The power is now in your hands. Take these concepts, explore the advanced features, and start building automations that solve real-world problems. We can't wait to see what you create.
