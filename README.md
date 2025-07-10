@@ -12,6 +12,9 @@ A minimal, fully-working **multi-agent demo** for the
 
 ---
 
+
+![](/assets/orchestrate-run.gif)
+
 ✅ Prerequisites
 Before you dive in, please ensure your environment meets the following requirements:
 
