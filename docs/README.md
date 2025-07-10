@@ -777,12 +777,7 @@ The most likely cause is the first interaction failure issue. Try waiting a few 
 
 
 
-Searched test individual agents chat interface agent selection available LLM models watsonx
-
-Searched chat interface select specific agent test individual agent available models list
-Based on the documentation I found, I can now provide you with comprehensive information about testing individual agents and available LLM models.
-
-How to Test Individual Agents
+## How to Test Individual Agents
 1. Using the Chat Interface with Agent Selection
 When you start the chat interface, you can select specific agents to test:
 
