@@ -107,26 +107,7 @@ else # watsonx.ai
   done
 fi
 
-# ────────────────────────────────────────────────────────────────────────────
-#  IBM Cloud CLI login & container-registry login
-# ────────────────────────────────────────────────────────────────────────────
-if command -v ibmcloud >/dev/null; then
-  # derive region from WO_INSTANCE (e.g. api.us-south.watson… → us-south)
-  if [[ "$ACCOUNT_TYPE" == "orchestrate" ]]; then
-    REGION=$(echo "$WO_INSTANCE" | cut -d. -f2)
-  else
-    REGION="us-south"
-  fi
 
-  echo "🔐 Logging into IBM Cloud (region: $REGION)…"
-  ibmcloud login --apikey "${WO_API_KEY:-$WO_ENTITLEMENT_KEY}" -r "$REGION"
-
-  echo "🔐 Logging Docker into IBM Container Registry…"
-  ibmcloud cr login
-else
-  echo "⚠️  ibmcloud CLI not found; skipping IBM Cloud login." >&2
-  echo "   You will need to 'docker login' manually." >&2
-fi
 
 # ────────────────────────────────────────────────────────────────────────────
 #  Setup Python virtual-environment & ADK

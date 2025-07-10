@@ -1,5 +1,27 @@
 #!/bin/bash
-# setup.sh - Complete setup: start server, import agents, start UI
+# setup_all.sh - Complete setup: start server, import agents, start UI
+
+
+set -euo pipefail
+
+# ── Blue runtime logo ────────────────────────────────────────────────────────
+print_logo() {
+  local BLUE="\033[1;34m"; local NC="\033[0m"
+  echo -e "${BLUE}"
+  cat <<'EOF'
+                _
+               | |
+ _ __ _   _ ___| | __ _ _ __   _ __ _____   __
+| '__| | | / __| |/ _` | '_ \| '_ ` _ \ \ / /
+| |  | |_| \__ \ | (_| | | | | | | | | \ V /
+|_|   \__,_|___/_|\__,_|_| |_|_| |_| |_|\_/
+
+EOF
+  echo -e "${NC}"
+}
+
+print_logo
+
 
 echo "=== Complete watsonx Orchestrate Setup ==="
 

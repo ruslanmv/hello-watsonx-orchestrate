@@ -3,6 +3,23 @@
 
 set -e  # Exit on any error
 
+if [[ -d "venv" ]]; then
+  echo "📦 Found existing venv. Activating…"
+  # shellcheck disable=SC1091
+  source venv/bin/activate
+  echo "🔧 Python $(python --version)"
+  ADK_VERSION=$(pip show ibm-watsonx-orchestrate 2>/dev/null \
+                | awk '/^Version:/{print $2}')
+  if [[ -z "$ADK_VERSION" ]]; then
+    echo "⚠️ Could not detect installed ADK version."
+  else
+    echo "✅ Detected ADK version $ADK_VERSION"
+  fi
+else
+  echo "❌ venv environment not found. Cannot proceed—please create it first."
+  exit 1
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'

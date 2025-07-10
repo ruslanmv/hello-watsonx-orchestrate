@@ -1,4 +1,50 @@
 #!/bin/bash
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │                                                                            │
+# │ ██╗    ██╗ █████╗ ████████╗███████╗ ██████╗ ███╗   ██╗██╗  ██╗             │
+# │ ██║    ██║██╔══██╗╚══██╔══╝██╔════╝██╔═══██╗████╗  ██║╚██╗██╔╝             │
+# │ ██║ █╗ ██║███████║   ██║   ███████╗██║   ██║██╔██╗ ██║ ╚███╔╝              │
+# │ ██║███╗██║██╔══██║   ██║   ╚════██║██║   ██║██║╚██╗██║ ██╔██╗              │
+# │ ╚███╔███╔╝██║  ██║   ██║   ███████║╚██████╔╝██║ ╚████║██╔╝ ██╗             │
+# │  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝             │
+# │                                                                            │
+# │            watsonx Orchestrate  DEV EDITION  by ruslanmv.com               │
+# └────────────────────────────────────────────────────────────────────────────┘
+#
+# Installs a chosen STABLE version of IBM watsonx Orchestrate ADK in an
+# isolated Python virtual-environment (./venv).
+#
+# This script prepares the environment but does NOT start the server.
+#
+# If a ./venv directory already exists, installation is skipped.
+#
+# ── ACCOUNT TYPES ────────────────────────────────────────────────────────────
+#   Account type is determined by the WO_DEVELOPER_EDITION_SOURCE variable:
+#   1. 'orchestrate': Uses watsonx Orchestrate credentials (WO_INSTANCE + WO_API_KEY)
+#   2. 'myibm': Uses watsonx.ai credentials (WO_ENTITLEMENT_KEY + WATSONX_APIKEY + WATSONX_SPACE_ID)
+#
+# Ensure an appropriate `.env` exists in this directory before running.
+# ---------------------------------------------------------------------------
+
+set -euo pipefail
+
+# ── Blue runtime logo ────────────────────────────────────────────────────────
+print_logo() {
+  local BLUE="\033[1;34m"; local NC="\033[0m"
+  echo -e "${BLUE}"
+  cat <<'EOF'
+                _
+               | |
+ _ __ _   _ ___| | __ _ _ __   _ __ _____   __
+| '__| | | / __| |/ _` | '_ \| '_ ` _ \ \ / /
+| |  | |_| \__ \ | (_| | | | | | | | | \ V /
+|_|   \__,_|___/_|\__,_|_| |_|_| |_| |_|\_/
+
+EOF
+  echo -e "${NC}"
+}
+
+print_logo
 
 # watsonx Orchestrate ADK Virtual Environment Setup Script
 # Creates a Python virtual environment and installs watsonx Orchestrate ADK

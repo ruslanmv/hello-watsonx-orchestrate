@@ -9,9 +9,28 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+
+if [[ -d "venv" ]]; then
+  echo "📦 Found existing venv. Activating…"
+  # shellcheck disable=SC1091
+  source venv/bin/activate
+  echo "🔧 Python $(python --version)"
+  ADK_VERSION=$(pip show ibm-watsonx-orchestrate 2>/dev/null \
+                | awk '/^Version:/{print $2}')
+  if [[ -z "$ADK_VERSION" ]]; then
+    echo "⚠️ Could not detect installed ADK version."
+  else
+    echo "✅ Detected ADK version $ADK_VERSION"
+  fi
+else
+  echo "❌ venv environment not found. Cannot proceed—please create it first."
+  exit 1
+fi
+
 # Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
+
 
 echo -e "${GREEN}Starting watsonx Orchestrate Developer Edition...${NC}"
 echo "Working directory: $SCRIPT_DIR"

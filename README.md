@@ -18,17 +18,24 @@ A minimal, fully-working **multi-agent demo** for the
 git clone https://github.com/ruslanmv/hello-watsonx-orchestrate.git
 cd hello-watsonx-orchestrate
 
-bash setup.sh                 # venv → pip install → start server → import all
-orchestrate chat start --agents orchestrator_agent
+bash install.sh                 # venv → pip install → start server → import all
+
 ````
+![](assets/2025-07-10-13-49-22.png)
+
+
 
 Open the URL printed in the terminal and try:
 
 | User input            | Expected answer (agent path)                           |
 | --------------------- | ------------------------------------------------------ |
-| `hello there`         | **Hello! I am the Greeting Agent.** (greeter)          |
-| `what is 11 plus 54`  | **The result of 11 + 54 is 65.** (calculator ➜ tool)   |
-| `this is only a test` | **The Echo Agent heard you say: this is only a test.** |
+| `hello`         | **Hello! I am Watsonx Orchestrate, an AI assistant, created by IBM. How can I help you today?** (Tool: greeting_agent)          |
+| `what is 11 plus 54`  | **The result of 11 + 54 is 65.** (Tool: calculator_agent)   |
+| `this is only a test` | **this is only a test.**(Tool: echo_agent) |
+
+
+![](assets/2025-07-10-13-56-28.png)
+
 
 ---
 
@@ -45,7 +52,7 @@ Open the URL printed in the terminal and try:
 │   └── calculator_tool.py
 ├── tests/               # pytest sample
 │   └── test_router.py
-├── setup.sh             # one-shot bootstrap script
+├── install.sh             # one-shot bootstrap script
 ├── requirements.txt
 ├── .gitignore
 ├── LICENSE
@@ -72,6 +79,8 @@ CI (GitHub Actions) automatically validates the YAML and runs the same tests on 
 | `tool 'add' not found`         | Run `orchestrate tools list` – if empty, re-run `setup.sh` (tools must be imported **before** agents).           |
 | `Address already in use :8080` | Another Orchestrate server is running. `orchestrate server stop` first, or kill the container in Docker Desktop. |
 | Chat page 404                  | Ensure `orchestrate server start --accept-license` is still running in a terminal tab.                           |
+
+Additional Troubleshootings [here](docs/Troubleshootings.md)
 
 ---
 
