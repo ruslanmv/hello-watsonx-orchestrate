@@ -775,8 +775,6 @@ Test with "add 2 and 3" to see if calculator_agent responds
 The most likely cause is the first interaction failure issue. Try waiting a few minutes after startup and then retry your messages. If that doesn't work, check your agent configurations and import order as described above.
 
 
-
-
 ## How to Test Individual Agents
 1. Using the Chat Interface with Agent Selection
 When you start the chat interface, you can select specific agents to test:
@@ -853,7 +851,6 @@ We've successfully tested our agents, and they work beautifully. But what gives 
 
 At the core, you have seamless integration with **watsonx.ai**, giving you access to powerful, enterprise-ready models like the **Llama 3 series** and IBM's own high-performance **Granite** models. The `llm: watsonx/meta-llama/llama-3-8b-instruct` we used is just one of many excellent choices.
 
-But the journey doesn't end there. The ADK opens the door to a host of other industry giants. Want to experiment with **OpenAI's GPT-4**? Or perhaps **Anthropic's Claude** models? Maybe **Google's Gemini** or a specialized model from **Mistral**? It's as simple as adding the provider and your credentials. For those who love local control and experimentation, the ADK even supports models running locally via **Ollama**.
 
 You can see the full roster of available models in your own environment at any time. Just open your terminal and run:
 
