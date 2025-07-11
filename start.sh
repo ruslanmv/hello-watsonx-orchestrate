@@ -30,7 +30,6 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-
 echo -e "${GREEN}Starting watsonx Orchestrate Developer Edition...${NC}"
 echo "Working directory: $SCRIPT_DIR"
 
@@ -54,7 +53,6 @@ if ! command -v orchestrate &> /dev/null; then
     echo "Please make sure the watsonx Orchestrate ADK is installed and in your PATH"
     exit 1
 fi
-
 # Start the server
 echo -e "${GREEN}Starting server...${NC}"
 orchestrate server start --env-file=.env
