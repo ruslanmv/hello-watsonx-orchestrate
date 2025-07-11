@@ -57,6 +57,8 @@ case "${OS_TYPE}" in
     echo "🍎 Detected macOS"
     run_script "scripts/mac/install_docker.sh"
     run_script "./install_watsonx_mac.sh"
+    run_script "./start.sh"
+    run_script "./run.sh"
     ;;
   *)
     echo "❓ Unknown OS: ${OS_TYPE}"
