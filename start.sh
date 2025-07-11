@@ -1,8 +1,6 @@
 #!/bin/bash
 # start.sh - Start watsonx Orchestrate Developer Edition
-
 set -e  # Exit on any error
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
