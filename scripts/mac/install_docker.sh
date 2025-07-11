@@ -242,13 +242,13 @@ show_menu() {
     echo
     print_color $YELLOW "Choose your preferred container management solution:"
     echo
-    print_color $GREEN "1) Rancher Desktop (Recommended)"
+    print_color $GREEN "1) Rancher Desktop "
     print_color $GREEN "   - Complete container management solution"
     print_color $GREEN "   - Includes Docker Compose v2 by default"
     print_color $GREEN "   - GUI interface available"
     print_color $GREEN "   - Best for users who prefer graphical tools"
     echo
-    print_color $BLUE "2) Colima (Lightweight)"
+    print_color $BLUE "2) Colima (Recommended)"
     print_color $BLUE "   - Lightweight Docker runtime"
     print_color $BLUE "   - Command-line focused"
     print_color $BLUE "   - Lower resource usage"
