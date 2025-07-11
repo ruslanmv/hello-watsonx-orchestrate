@@ -30,3 +30,5 @@ Thumbs.db
 orchestrate-dev-*.tar
 /backup
 /attemps
+
+backup/
