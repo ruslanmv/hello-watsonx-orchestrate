@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Script to install Python 3.11 on Ubuntu/Debian-based systems, unless already installed.
 

@@ -44,7 +44,8 @@ case "${OS_TYPE}" in
     # Verify it's Ubuntu
     if grep -qi '^ID=ubuntu' /etc/os-release; then
       echo "✔  Ubuntu identified"
-      run_script "scripts/ubuntu/install_python311.sh"
+      run_script "./scripts/ubuntu/install_python311.sh"
+      run_script "./scripts/ubuntu/install_docker.sh"
       run_script "./install_watsonx_pc.sh"
       run_script "./start.sh"
       run_script "./run.sh"
@@ -55,7 +56,7 @@ case "${OS_TYPE}" in
     ;;
   Darwin*)
     echo "🍎 Detected macOS"
-    run_script "scripts/mac/install_docker.sh"
+    run_script "./scripts/mac/install_docker.sh"
     run_script "./install_watsonx_mac.sh"
     run_script "./start.sh"
     run_script "./run.sh"
