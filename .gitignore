@@ -32,3 +32,5 @@ orchestrate-dev-*.tar
 /attemps
 
 backup/
+scripts/utils/agents.json
+scripts/utils/tools.json
